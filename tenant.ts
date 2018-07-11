@@ -1,3 +1,6 @@
+/** A photo is just a URL to an image. */
+type Photo = string;
+
 export enum LeaseType {
   /** Market rate or free market lease. */
   MarketRate = 'mr',
@@ -39,14 +42,17 @@ export interface RentalHistory {
   /** When the tenant requested their rental history, or null if they haven't yet. */
   dateRequested: Date|null;
 
-  /** Whether the tenant received their rental history yet. */
-  hasReceived: boolean;
+  /** When the tenant received their rental history, or null if they haven't yet. */
+  dateReceived: Date|null;
 
   /** If the tenant hasn't yet received the rental history, this is the date we'll next ask them about it. */
   nextReminder: Date|null;
 
   /** Whether the rental history asserts that the tenant's dwelling is rent stabilized. */
   isRentStabilized: boolean;
+
+  /** The user's photograph of their rental history. */
+  photo: Photo;
 }
 
 export interface Tenant {
