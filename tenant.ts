@@ -35,7 +35,22 @@ export interface HousingIssues {
   hasOther: boolean;
 }
 
-export interface TenantData {
+export interface RentalHistory {
+  /** When the tenant requested their rental history, or null if they haven't yet. */
+  dateRequested: Date|null;
+
+  /** Whether the tenant received their rental history yet. */
+  hasReceived: boolean;
+
+  /** If the tenant hasn't yet received the rental history, this is the date we'll next ask them about it. */
+  nextReminder: Date|null;
+
+  /** Whether the rental history asserts that the tenant's dwelling is rent stabilized. */
+  isRentStabilized: boolean;
+}
+
+export interface Tenant {
   leaseType: LeaseType;
   housingIssues: HousingIssues;
+  rentalHistory: RentalHistory;
 }
