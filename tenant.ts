@@ -38,15 +38,25 @@ export interface HousingIssues {
   hasOther: boolean;
 }
 
-export interface RentalHistory {
-  /** When the tenant requested their rental history, or null if they haven't yet. */
-  dateRequested: Date|null;
+export interface BaseRentalHistory {
+  status: string;
 
-  /** When the tenant received their rental history, or null if they haven't yet. */
-  dateReceived: Date|null;
+  /** When the tenant requested their rental history. */
+  dateRequested: Date;
+}
 
-  /** If the tenant hasn't yet received the rental history, this is the date we'll next ask them about it. */
-  nextReminder: Date|null;
+export interface RequestedRentalHistory extends BaseRentalHistory {
+  status: 'requested';
+
+  /** The date when we'll next ask the tenant if they've received the history yet. */
+  nextReminder: Date;
+}
+
+export interface ReceivedRentalHistory extends BaseRentalHistory {
+  status: 'received';
+
+  /** When the tenant received their rental history. */
+  dateReceived: Date;
 
   /** Whether the rental history asserts that the tenant's dwelling is rent stabilized. */
   isRentStabilized: boolean;
@@ -54,6 +64,8 @@ export interface RentalHistory {
   /** The user's photograph of their rental history. */
   photo: Photo;
 }
+
+type RentalHistory = RequestedRentalHistory | ReceivedRentalHistory;
 
 export interface Tenant {
   leaseType: LeaseType;
