@@ -26,6 +26,9 @@ export class TenantInterview extends Interview<Tenant> {
       [
         [LeaseType.MarketRate, 'Market rate'],
         [LeaseType.RentStabilized, 'Rent stabilized'],
+        [LeaseType.NYCHA, 'Public housing (NYCHA)'],
+        [LeaseType.Other, 'Other (e.g. month-to-month)'],
+        [LeaseType.Unknown, 'Not sure'],
       ]
     ));
 
