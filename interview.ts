@@ -1,6 +1,16 @@
 import * as readline from 'readline';
 import * as stream from 'stream';
 
+/** 
+ * Represents a validation error for a question, e.g. when a user
+ * provides an invalid response.
+ * 
+ * Note that this doesn't extend the standard Error class,
+ * because it's not actually designed to be thrown: the rationale
+ * is that validation errors are a normal occurrence and our
+ * code should check for them all the time, rather than throwing
+ * them and potentially having them go uncaught.
+ */
 export class ValidationError {
   message: string;
 
@@ -9,9 +19,25 @@ export class ValidationError {
   }
 }
 
+/**
+ * Represents a question in an interview, parmeterized by
+ * the type of data that a valid answer represents.
+ * 
+ * For example, a question like "How old are you?" might
+ * be a Question<number>, while "Do you like salad?" might
+ * be a Question<boolean>.
+ */
 export abstract class Question<T> {
+  /** The text of the question, e.g. "How are you?". */
   abstract get text(): string;
 
+  /**
+   * Process a response entered by the user and return either
+   * the data it represents, or an error explaining why the
+   * response is invalid.
+   * 
+   * @param response A raw response entered by the user.
+   */
   abstract processResponse(response: string): T|ValidationError;
 }
 
