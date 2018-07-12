@@ -1,4 +1,5 @@
 import * as readline from 'readline';
+import * as stream from 'stream';
 
 export class ValidationError {
   message: string;
@@ -32,21 +33,31 @@ export class NonBlankQuestion extends Question<string> {
 
 export abstract class Interview<S> {
   rl: readline.ReadLine;
+  isAsking: boolean;
+  output: NodeJS.WriteStream;
 
-  constructor(rl?: readline.ReadLine) {
+  constructor(rl?: readline.ReadLine, output: NodeJS.WriteStream = process.stdout) {
+    this.isAsking = false;
     this.rl = rl || readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: output
     });
+    this.output = output;
   }
 
   ask<T>(question: Question<T>): Promise<T> {
+    if (this.isAsking) {
+      throw new Error('Assertion failure, we are already asking a question!');
+    }
+
     return new Promise((resolve, reject) => {
+      this.isAsking = true;
       this.rl.question(`${question.text} `, answer => {
         const result = question.processResponse(answer);
+        this.isAsking = false;
         if (result instanceof ValidationError) {
-          this.rl.write(result.message);
-          return this.ask(question);
+          this.output.write(`${result.message}\n`);
+          return this.ask(question).then(resolve).catch(reject);
         } else {
           return resolve(result);
         }

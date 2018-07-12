@@ -7,10 +7,11 @@ import {
 
 export class TenantInterview extends Interview<Tenant> {
   async askNext(tenant: Tenant): Promise<Tenant> {
-    if (!tenant.name) {
+    if (!tenant.name || !tenant.phoneNumber) {
       return {
         ...tenant,
-        name: await this.ask(new NonBlankQuestion('What is your name?'))
+        name: await this.ask(new NonBlankQuestion('What is your name?')),
+        phoneNumber: await this.ask(new NonBlankQuestion('What is your phone number?')),
       };
     }
     return tenant;
