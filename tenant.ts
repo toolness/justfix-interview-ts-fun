@@ -67,8 +67,12 @@ export interface ReceivedRentalHistory extends BaseRentalHistory {
 
 type RentalHistory = RequestedRentalHistory | ReceivedRentalHistory;
 
-export interface Tenant {
+interface _Tenant {
+  name: string;
+  phoneNumber: string;
   leaseType: LeaseType;
   housingIssues: HousingIssues;
   rentalHistory: RentalHistory;
 }
+
+export type Tenant = Readonly<Partial<_Tenant>>;
