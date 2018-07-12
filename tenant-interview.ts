@@ -10,8 +10,10 @@ export class TenantInterview extends Interview<Tenant> {
     if (!tenant.name || !tenant.phoneNumber) {
       return {
         ...tenant,
-        name: await this.ask(new NonBlankQuestion('What is your name?')),
-        phoneNumber: await this.ask(new NonBlankQuestion('What is your phone number?')),
+        ...await this.askMany({
+          name: new NonBlankQuestion('What is your name?'),
+          phoneNumber: new NonBlankQuestion('What is your phone number?'),
+        })
       };
     }
     return tenant;

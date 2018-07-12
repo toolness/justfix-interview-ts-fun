@@ -31,6 +31,10 @@ export class NonBlankQuestion extends Question<string> {
   }
 }
 
+type QuestionsFor<T> = {
+  [P in keyof T]: Question<T[P]>;
+};
+
 export abstract class Interview<S> {
   rl: readline.ReadLine;
   isAsking: boolean;
@@ -63,6 +67,16 @@ export abstract class Interview<S> {
         }
       });
     });
+  }
+
+  async askMany<T>(questions: QuestionsFor<T>): Promise<T> {
+    const result = {} as T;
+
+    for (let key in questions) {
+      result[key] = await this.ask(questions[key]);
+    }
+
+    return result;
   }
 
   abstract async askNext(state: S): Promise<S>;

@@ -7,7 +7,7 @@ if (module.parent === null) {
   interview.execute(initialState).then(tenant => {
     console.log('final tenant state is:', tenant);
   }).catch((e: any) => {
-    console.exception(e);
+    console.log(e);
     process.exit(1);
   });
 }
