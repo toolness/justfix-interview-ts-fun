@@ -3,11 +3,12 @@ import {
   LeaseType
 } from './tenant';
 
+import { Interview } from './interview';
+
 import {
-  Interview,
   MultiChoiceQuestion,
   NonBlankQuestion
-} from './interview';
+} from './question';
 
 export class TenantInterview extends Interview<Tenant> {
   async askForBasicInfo(tenant: Tenant): Promise<Tenant> {
