@@ -9,6 +9,10 @@
  * them and potentially having them go uncaught.
  */
 export class ValidationError {
+  /**
+   * The human-readable text explaining the error. It will
+   * be shown to the user.
+   */
   message: string;
 
   constructor(message: string) {
@@ -38,10 +42,22 @@ export abstract class Question<T> {
   abstract processResponse(response: string): T|ValidationError;
 }
 
+/**
+ * Represents a valid answer to a multiple-choice question.
+ * The first member represents the actual data value, while
+ * the second represnts the human-readable text for it.
+ */
 type MultiChoiceAnswer<T> = [T, string];
 
+/**
+ * A multiple-choice question. Answers are automatically
+ * numbered.
+ */
 export class MultiChoiceQuestion<T> extends Question<T> {
+  /** The question, e.g. "What kind of lease do you have?". */
   question: string;
+
+  /** Potential answers to the question, which the user must choose from. */
   answers: MultiChoiceAnswer<T>[];
 
   constructor(question: string, answers: MultiChoiceAnswer<T>[]) {
@@ -74,7 +90,11 @@ export class MultiChoiceQuestion<T> extends Question<T> {
   }
 }
 
+/**
+ * A basic question that accepts any kind of non-blank input.
+ */
 export class NonBlankQuestion extends Question<string> {
+  /** The text of the question, e.g. "What is your name?". */
   text: string;
 
   constructor(text: string) {
