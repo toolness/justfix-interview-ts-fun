@@ -35,18 +35,26 @@ type QuestionsFor<T> = {
   [P in keyof T]: Question<T[P]>;
 };
 
+export interface InterviewOptions<S> {
+  rl?: readline.ReadLine;
+  output?: NodeJS.WriteStream;
+  onChange?: (state: S) => void;
+}
+
 export abstract class Interview<S> {
   rl: readline.ReadLine;
   isAsking: boolean;
   output: NodeJS.WriteStream;
+  onChange?: (state: S) => void;
 
-  constructor(rl?: readline.ReadLine, output: NodeJS.WriteStream = process.stdout) {
+  constructor(options: InterviewOptions<S> = {}) {
     this.isAsking = false;
-    this.rl = rl || readline.createInterface({
+    this.output = options.output || process.stdout;
+    this.rl = options.rl || readline.createInterface({
       input: process.stdin,
-      output: output
+      output: this.output
     });
-    this.output = output;
+    this.onChange = options.onChange;
   }
 
   ask<T>(question: Question<T>): Promise<T> {
@@ -90,6 +98,9 @@ export abstract class Interview<S> {
         break;
       }
       state = nextState;
+      if (this.onChange) {
+        this.onChange(state);
+      }
     }
 
     this.rl.close();
