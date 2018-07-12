@@ -15,6 +15,42 @@ export abstract class Question<T> {
   abstract processResponse(response: string): T|ValidationError;
 }
 
+type MultiChoiceAnswer<T> = [T, string];
+
+export class MultiChoiceQuestion<T> extends Question<T> {
+  question: string;
+  answers: MultiChoiceAnswer<T>[];
+
+  constructor(question: string, answers: MultiChoiceAnswer<T>[]) {
+    super();
+    this.question = question;
+    this.answers = answers;
+  }
+
+  get text(): string {
+    const parts = [this.question, ''];
+
+    this.answers.forEach(([_, label], i) => {
+      parts.push(`${i + 1} - ${label}`);
+    });
+
+    parts.push('', 'Enter a number from the list above:');
+
+    return parts.join('\n');
+  }
+
+  processResponse(response: string): T|ValidationError {
+    const responseInt = parseInt(response, 10);
+    const answer = this.answers[responseInt - 1];
+
+    if (answer === undefined) {
+      return new ValidationError('Please choose a valid number.');
+    }
+
+    return answer[0];
+  }
+}
+
 export class NonBlankQuestion extends Question<string> {
   text: string;
 
