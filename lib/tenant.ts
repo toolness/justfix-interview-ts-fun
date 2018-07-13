@@ -65,7 +65,7 @@ export interface ReceivedRentalHistory extends BaseRentalHistory {
   photo: Photo;
 }
 
-type RentalHistory = RequestedRentalHistory | ReceivedRentalHistory;
+export type RentalHistory = RequestedRentalHistory | ReceivedRentalHistory;
 
 interface _Tenant {
   name: string;

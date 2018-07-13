@@ -1,6 +1,8 @@
 import {
   Tenant,
-  LeaseType
+  LeaseType,
+  RequestedRentalHistory,
+  RentalHistory
 } from './tenant';
 
 import { Interview } from './interview';
@@ -74,6 +76,26 @@ export class TenantInterview extends Interview<Tenant> {
     }
   }
 
+  async followupRentalHistory(rentalHistory: RequestedRentalHistory): Promise<RentalHistory> {
+    const wasReceived = await this.io.ask(new YesNoQuestion('Have you received your rental history yet?'));
+
+    if (wasReceived) {
+      return {
+        status: 'received',
+        dateRequested: rentalHistory.dateRequested,
+        isRentStabilized: await this.io.ask(new YesNoQuestion('Are you rent stabilized?')),
+        dateReceived: '2018-07-20T21:48:17.449Z',  // TODO: Ask user for this!
+        photo: 'https://fakephoto'
+      };
+    } else {
+      this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);
+      return {
+        ...rentalHistory,
+        nextReminder: addDays(this.getDate(), RENTAL_HISTORY_FOLLOWUP_DAYS).toISOString()
+      };
+    }
+  }
+
   async askNext(tenant: Tenant): Promise<Tenant> {
     if (!tenant.name) {
       return {
@@ -102,21 +124,10 @@ export class TenantInterview extends Interview<Tenant> {
     }
 
     if (tenant.rentalHistory.status === 'requested') {
-      const nextReminder = new Date(tenant.rentalHistory.nextReminder);
-      if (this.getDate() >= nextReminder) {
-        const wasReceived = await this.io.ask(new YesNoQuestion('Have you received your rental history yet?'));
-
-        if (wasReceived) {
-          this.io.notify('Hooray!  Um, we need to implement what happens here.');
-        } else {
-          this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);
-          return {
-            ...tenant,
-            rentalHistory: {
-              ...tenant.rentalHistory,
-              nextReminder: addDays(nextReminder, RENTAL_HISTORY_FOLLOWUP_DAYS).toISOString()
-            }
-          };
+      if (this.getDate() >= new Date(tenant.rentalHistory.nextReminder)) {
+        return {
+          ...tenant,
+          rentalHistory: await this.followupRentalHistory(tenant.rentalHistory)
         }
       }
     }
