@@ -5,6 +5,8 @@ import {
 
 import { Interview } from './interview';
 
+import { addDays } from './util';
+
 import {
   MultiChoiceQuestion,
   NonBlankQuestion,
@@ -47,6 +49,25 @@ export class TenantInterview extends Interview<Tenant> {
     return {...tenant, housingIssues};
   }
 
+  async askForRentalHistory(tenant: Tenant): Promise<Tenant> {
+    while (true) {
+      const permission = await this.io.ask(new YesNoQuestion('Can we request your rental history from your landlord?'));
+      if (permission) {
+        // TODO: Request rental history.
+        return {
+          ...tenant,
+          rentalHistory: {
+            status: 'requested',
+            dateRequested: this.getDate(),
+            nextReminder: addDays(this.getDate(), 7)
+          }
+        };
+      } else {
+        this.io.notify("Um, we really need to request your rental history to proceed.");
+      }
+    }
+  }
+
   async askNext(tenant: Tenant): Promise<Tenant> {
     if (!tenant.name) {
       return {
@@ -68,6 +89,10 @@ export class TenantInterview extends Interview<Tenant> {
         ...tenant,
         phoneNumber: await this.io.ask(new NonBlankQuestion('What is your phone number?'))
       };
+    }
+
+    if (!tenant.rentalHistory) {
+      return this.askForRentalHistory(tenant);
     }
 
     return tenant;
