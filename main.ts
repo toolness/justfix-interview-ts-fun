@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import { TenantInterview } from './tenant-interview';
+import { TenantInterview } from './lib/tenant-interview';
 
 const STATE_FILE = '.tenant-interview-state.json';
 
