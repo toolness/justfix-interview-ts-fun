@@ -13,7 +13,7 @@ import {
 
 export class TenantInterview extends Interview<Tenant> {
   async askForLeaseType(tenant: Tenant): Promise<Tenant> {
-    const leaseType = await this.ask(new MultiChoiceQuestion(
+    const leaseType = await this.io.ask(new MultiChoiceQuestion(
       'What kind of lease do you have?',
       [
         [LeaseType.MarketRate, 'Market rate'],
@@ -28,7 +28,7 @@ export class TenantInterview extends Interview<Tenant> {
   }
 
   async askForHousingIssues(tenant: Tenant): Promise<Tenant> {
-    const housingIssues = await this.askMany({
+    const housingIssues = await this.io.askMany({
       needsRepairs: new YesNoQuestion('Does your apartment need repairs?'),
       isHarassed: new YesNoQuestion('Are you being harassed by your landlord?'),
       isFacingEviction: new YesNoQuestion('Are you facing eviction?'),
@@ -38,7 +38,7 @@ export class TenantInterview extends Interview<Tenant> {
     });
 
     if (housingIssues.isFacingEviction) {
-      this.notify(
+      this.io.notify(
         "Since you’re in an eviction, it’s important to try to get legal help right away. " +
         "We’ll point you to a resource that can help you find a lawyer in just a few moments."
       );
@@ -51,7 +51,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (!tenant.name) {
       return {
         ...tenant,
-        name: await this.ask(new NonBlankQuestion('What is your name?'))
+        name: await this.io.ask(new NonBlankQuestion('What is your name?'))
       };
     }
 
@@ -66,7 +66,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (!tenant.phoneNumber) {
       return {
         ...tenant,
-        phoneNumber: await this.ask(new NonBlankQuestion('What is your phone number?'))
+        phoneNumber: await this.io.ask(new NonBlankQuestion('What is your phone number?'))
       };
     }
 

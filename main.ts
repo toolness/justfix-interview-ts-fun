@@ -3,6 +3,8 @@ import chalk from 'chalk';
 
 import { TenantInterview } from './lib/tenant-interview';
 
+import { ReadlineInterviewIO } from './lib/interview-io';
+
 const STATE_FILE = '.tenant-interview-state.json';
 
 function log(msg: string) {
@@ -10,7 +12,9 @@ function log(msg: string) {
 }
 
 if (module.parent === null) {
+  const io = new ReadlineInterviewIO();
   const interview = new TenantInterview({
+    io,
     onChange: tenant => {
       log(`Writing state to ${STATE_FILE}...`);
       fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });
@@ -24,6 +28,7 @@ if (module.parent === null) {
 
   interview.execute(initialState).then(tenant => {
     log(`Interview complete. Final state is in ${STATE_FILE}.`);
+    io.close();
   }).catch((e: any) => {
     log(e);
     process.exit(1);
