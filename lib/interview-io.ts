@@ -102,7 +102,7 @@ export class ReadlineInterviewIO implements InterviewIO {
     this.output.write(`${text}\n`);
   }
 
-  /** Close the underlying readline object. */
+  /** Close the underlying ReadLine object. */
   close() {
     this.rl.close();
   }
