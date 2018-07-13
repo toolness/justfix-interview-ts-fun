@@ -12,15 +12,6 @@ import {
 } from './question';
 
 export class TenantInterview extends Interview<Tenant> {
-  async askForBasicInfo(tenant: Tenant): Promise<Tenant> {
-    const basicInfo = await this.askMany({
-      name: new NonBlankQuestion('What is your name?'),
-      phoneNumber: new NonBlankQuestion('What is your phone number?'),
-    });
-
-    return {...tenant, ...basicInfo};
-  }
-
   async askForLeaseType(tenant: Tenant): Promise<Tenant> {
     const leaseType = await this.ask(new MultiChoiceQuestion(
       'What kind of lease do you have?',
@@ -57,8 +48,11 @@ export class TenantInterview extends Interview<Tenant> {
   }
 
   async askNext(tenant: Tenant): Promise<Tenant> {
-    if (!(tenant.name && tenant.phoneNumber)) {
-      return this.askForBasicInfo(tenant);
+    if (!tenant.name) {
+      return {
+        ...tenant,
+        name: await this.ask(new NonBlankQuestion('What is your name?'))
+      };
     }
 
     if (!tenant.housingIssues) {
@@ -67,6 +61,13 @@ export class TenantInterview extends Interview<Tenant> {
 
     if (!tenant.leaseType) {
       return this.askForLeaseType(tenant);
+    }
+
+    if (!tenant.phoneNumber) {
+      return {
+        ...tenant,
+        phoneNumber: await this.ask(new NonBlankQuestion('What is your phone number?'))
+      };
     }
 
     return tenant;
