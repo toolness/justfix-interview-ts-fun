@@ -56,6 +56,10 @@ export class TenantInterview extends Interview<Tenant> {
       const permission = await this.io.ask(new YesNoQuestion('Can we request your rental history from your landlord?'));
       if (permission) {
         // TODO: Request rental history.
+        this.io.notify(
+          `Rental history requested! We'll ask if you've received it in ` +
+          `${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`
+        );
         return {
           ...tenant,
           rentalHistory: {
