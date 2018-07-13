@@ -107,6 +107,13 @@ export abstract class Interview<S> {
   abstract async askNext(state: S): Promise<S>;
 
   /**
+   * Notifies the user with important information.
+   */
+  notify(text: string) {
+    this.output.write(`${text}\n`);
+  }
+
+  /**
    * Runs the interview, asking the user questions until they
    * are exhausted. Returns the final state of the interview.
    * 

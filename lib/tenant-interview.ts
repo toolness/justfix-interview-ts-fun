@@ -46,6 +46,13 @@ export class TenantInterview extends Interview<Tenant> {
       hasOther: new YesNoQuestion('Do you have any other apartment issues?'),
     });
 
+    if (housingIssues.isFacingEviction) {
+      this.notify(
+        "Since you’re in an eviction, it’s important to try to get legal help right away. " +
+        "We’ll point you to a resource that can help you find a lawyer in just a few moments."
+      );
+    }
+
     return {...tenant, housingIssues};
   }
 
