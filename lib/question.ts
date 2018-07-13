@@ -109,3 +109,28 @@ export class NonBlankQuestion extends Question<string> {
     return response;
   }
 }
+
+/**
+ * A question whose answer must always be "yes" or "no".
+ */
+export class YesNoQuestion extends Question<boolean> {
+  /** The text of the question, e.g. "Are you ok?". */
+  text: string;
+
+  constructor(text: string) {
+    super();
+    this.text = text;
+  }
+
+  async processResponse(response: string): Promise<boolean|ValidationError> {
+    const YES_REGEX = /^\s*y/i;
+    const NO_REGEX = /^\s*n/i;
+
+    if (YES_REGEX.test(response)) {
+      return true;
+    } else if (NO_REGEX.test(response)) {
+      return false;
+    }
+    return new ValidationError('Please answer with "yes" or "no".');
+  }
+}

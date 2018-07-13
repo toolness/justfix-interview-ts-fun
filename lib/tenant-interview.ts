@@ -7,7 +7,8 @@ import { Interview } from './interview';
 
 import {
   MultiChoiceQuestion,
-  NonBlankQuestion
+  NonBlankQuestion,
+  YesNoQuestion,
 } from './question';
 
 export class TenantInterview extends Interview<Tenant> {
@@ -20,7 +21,7 @@ export class TenantInterview extends Interview<Tenant> {
     return {...tenant, ...basicInfo};
   }
 
-  async askForLeaseInfo(tenant: Tenant): Promise<Tenant> {
+  async askForLeaseType(tenant: Tenant): Promise<Tenant> {
     const leaseType = await this.ask(new MultiChoiceQuestion(
       'What kind of lease do you have?',
       [
@@ -35,13 +36,30 @@ export class TenantInterview extends Interview<Tenant> {
     return {...tenant, leaseType};
   }
 
+  async askForHousingIssues(tenant: Tenant): Promise<Tenant> {
+    const housingIssues = await this.askMany({
+      needsRepairs: new YesNoQuestion('Does your apartment need repairs?'),
+      isHarassed: new YesNoQuestion('Are you being harassed by your landlord?'),
+      isFacingEviction: new YesNoQuestion('Are you facing eviction?'),
+      hasLeaseIssues: new YesNoQuestion('Are you having issues with your lease?'),
+      hasNoServices: new YesNoQuestion('Are you living without essential services, like heat/gas/hot water?'),
+      hasOther: new YesNoQuestion('Do you have any other apartment issues?'),
+    });
+
+    return {...tenant, housingIssues};
+  }
+
   async askNext(tenant: Tenant): Promise<Tenant> {
     if (!(tenant.name && tenant.phoneNumber)) {
       return this.askForBasicInfo(tenant);
     }
 
     if (!tenant.leaseType) {
-      return this.askForLeaseInfo(tenant);
+      return this.askForLeaseType(tenant);
+    }
+
+    if (!tenant.housingIssues) {
+      return this.askForHousingIssues(tenant);
     }
 
     return tenant;
