@@ -39,7 +39,7 @@ export abstract class Question<T> {
    * 
    * @param response A raw response entered by the user.
    */
-  abstract processResponse(response: string): T|ValidationError;
+  abstract processResponse(response: string): Promise<T|ValidationError>;
 }
 
 /**
@@ -78,7 +78,7 @@ export class MultiChoiceQuestion<T> extends Question<T> {
     return parts.join('\n');
   }
 
-  processResponse(response: string): T|ValidationError {
+  async processResponse(response: string): Promise<T|ValidationError> {
     const responseInt = parseInt(response, 10);
     const answer = this.answers[responseInt - 1];
 
@@ -102,7 +102,7 @@ export class NonBlankQuestion extends Question<string> {
     this.text = text;
   }
 
-  processResponse(response: string): string|ValidationError {
+  async processResponse(response: string): Promise<string|ValidationError> {
     if (!response.trim()) {
       return new ValidationError('Your response cannot be blank!');
     }

@@ -2,6 +2,7 @@ import * as readline from 'readline';
 import * as stream from 'stream';
 
 import { Question, ValidationError } from './question';
+import { resolve } from 'dns';
 
 /**
  * This is a mapped type [1] consisting of properties that consist
@@ -49,25 +50,32 @@ export abstract class Interview<S> {
     this.onChange = options.onChange;
   }
 
+  /** This is just a promisified wrapper around ReadLine.question(). */
+  private askRaw(query: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.rl.question(query, answer => {
+        resolve(answer);
+      });
+    });
+  }
+
   /** Ask a question of the user. */
-  ask<T>(question: Question<T>): Promise<T> {
+  async ask<T>(question: Question<T>): Promise<T> {
     if (this.isAsking) {
       throw new Error('Assertion failure, we are already asking a question!');
     }
 
-    return new Promise((resolve, reject) => {
-      this.isAsking = true;
-      this.rl.question(`${question.text} `, answer => {
-        const result = question.processResponse(answer);
-        this.isAsking = false;
-        if (result instanceof ValidationError) {
-          this.output.write(`${result.message}\n`);
-          return this.ask(question).then(resolve).catch(reject);
-        } else {
-          return resolve(result);
-        }
-      });
-    });
+    this.isAsking = true;
+    const rawAnswer = await this.askRaw(`${question.text} `);
+    const result = await question.processResponse(rawAnswer);
+    this.isAsking = false;
+
+    if (result instanceof ValidationError) {
+      this.output.write(`${result.message}\n`);
+      return this.ask(question);
+    }
+
+    return result;
   }
 
   /**
