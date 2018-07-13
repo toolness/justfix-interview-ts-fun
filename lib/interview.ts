@@ -23,6 +23,9 @@ export interface InterviewOptions<S> {
 
   /** A callback that will be called whenever a state change occurs. */
   onChange?: (state: S) => void;
+
+  /** A function that returns the current date (useful for testing). */
+  getDate?: () => Date;
 }
 
 /**
@@ -39,6 +42,7 @@ export abstract class Interview<S> {
   isAsking: boolean;
   output: NodeJS.WriteStream;
   onChange?: (state: S) => void;
+  getDate: () => Date;
 
   constructor(options: InterviewOptions<S> = {}) {
     this.isAsking = false;
@@ -48,6 +52,7 @@ export abstract class Interview<S> {
       output: this.output
     });
     this.onChange = options.onChange;
+    this.getDate = options.getDate || (() => new Date());
   }
 
   /** This is just a promisified wrapper around ReadLine.question(). */
