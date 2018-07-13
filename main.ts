@@ -1,13 +1,18 @@
 import * as fs from 'fs';
+import chalk from 'chalk';
 
 import { TenantInterview } from './lib/tenant-interview';
 
 const STATE_FILE = '.tenant-interview-state.json';
 
+function log(msg: string) {
+  console.log(chalk.gray(msg));
+}
+
 if (module.parent === null) {
   const interview = new TenantInterview({
     onChange: tenant => {
-      console.log(`Writing state to ${STATE_FILE}...`);
+      log(`Writing state to ${STATE_FILE}...`);
       fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });
     }
   });
@@ -18,9 +23,9 @@ if (module.parent === null) {
   } catch (e) {}
 
   interview.execute(initialState).then(tenant => {
-    console.log(`Interview complete. Final state is in ${STATE_FILE}.`);
+    log(`Interview complete. Final state is in ${STATE_FILE}.`);
   }).catch((e: any) => {
-    console.log(e);
+    log(e);
     process.exit(1);
   });
 }
