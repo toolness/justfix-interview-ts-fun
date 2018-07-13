@@ -13,6 +13,8 @@ import {
   YesNoQuestion,
 } from './question';
 
+const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
+
 export class TenantInterview extends Interview<Tenant> {
   async askForLeaseType(tenant: Tenant): Promise<Tenant> {
     const leaseType = await this.io.ask(new MultiChoiceQuestion(
@@ -58,8 +60,8 @@ export class TenantInterview extends Interview<Tenant> {
           ...tenant,
           rentalHistory: {
             status: 'requested',
-            dateRequested: this.getDate(),
-            nextReminder: addDays(this.getDate(), 7)
+            dateRequested: this.getDate().toISOString(),
+            nextReminder: addDays(this.getDate(), RENTAL_HISTORY_FOLLOWUP_DAYS).toISOString()
           }
         };
       } else {
@@ -93,6 +95,26 @@ export class TenantInterview extends Interview<Tenant> {
 
     if (!tenant.rentalHistory) {
       return this.askForRentalHistory(tenant);
+    }
+
+    if (tenant.rentalHistory.status === 'requested') {
+      const nextReminder = new Date(tenant.rentalHistory.nextReminder);
+      if (this.getDate() >= nextReminder) {
+        const wasReceived = await this.io.ask(new YesNoQuestion('Have you received your rental history yet?'));
+
+        if (wasReceived) {
+          this.io.notify('Hooray!  Um, we need to implement what happens here.');
+        } else {
+          this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);
+          return {
+            ...tenant,
+            rentalHistory: {
+              ...tenant.rentalHistory,
+              nextReminder: addDays(nextReminder, RENTAL_HISTORY_FOLLOWUP_DAYS).toISOString()
+            }
+          };
+        }
+      }
     }
 
     return tenant;

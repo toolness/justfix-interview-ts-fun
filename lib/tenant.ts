@@ -42,21 +42,21 @@ export interface BaseRentalHistory {
   status: string;
 
   /** When the tenant requested their rental history. */
-  dateRequested: Date;
+  dateRequested: string;
 }
 
 export interface RequestedRentalHistory extends BaseRentalHistory {
   status: 'requested';
 
   /** The date when we'll next ask the tenant if they've received the history yet. */
-  nextReminder: Date;
+  nextReminder: string;
 }
 
 export interface ReceivedRentalHistory extends BaseRentalHistory {
   status: 'received';
 
   /** When the tenant received their rental history. */
-  dateReceived: Date;
+  dateReceived: string;
 
   /** Whether the rental history asserts that the tenant's dwelling is rent stabilized. */
   isRentStabilized: boolean;
