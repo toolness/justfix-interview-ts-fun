@@ -38,10 +38,10 @@ export interface InterviewOptions<S> {
  * of this writing, only a console-based readline interface is available.
  */
 export abstract class Interview<S> {
-  rl: readline.ReadLine;
-  isAsking: boolean;
-  output: NodeJS.WriteStream;
-  onChange?: (state: S) => void;
+  private rl: readline.ReadLine;
+  private isAsking: boolean;
+  private output: NodeJS.WriteStream;
+  private onChange?: (state: S) => void;
   getDate: () => Date;
 
   constructor(options: InterviewOptions<S> = {}) {
