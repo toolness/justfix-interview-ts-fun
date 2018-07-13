@@ -61,12 +61,12 @@ export class TenantInterview extends Interview<Tenant> {
       return this.askForBasicInfo(tenant);
     }
 
-    if (!tenant.leaseType) {
-      return this.askForLeaseType(tenant);
-    }
-
     if (!tenant.housingIssues) {
       return this.askForHousingIssues(tenant);
+    }
+
+    if (!tenant.leaseType) {
+      return this.askForLeaseType(tenant);
     }
 
     return tenant;
