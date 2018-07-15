@@ -13,12 +13,10 @@ function log(msg: string) {
 
 if (module.parent === null) {
   const io = new ReadlineInterviewIO();
-  const interview = new TenantInterview({
-    io,
-    onChange: tenant => {
-      log(`Writing state to ${STATE_FILE}...`);
-      fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });
-    }
+  const interview = new TenantInterview({ io });
+  interview.on('change', (_, tenant) => {
+    log(`Writing state to ${STATE_FILE}...`);
+    fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });
   });
   let initialState = {};
 

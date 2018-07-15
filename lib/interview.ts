@@ -1,12 +1,11 @@
+import { EventEmitter } from 'events';
+
 import { Question, ValidationError } from './question';
 import { InterviewIO } from './interview-io';
 
 export interface InterviewOptions<S> {
   /** The input/output used to communicate with the user. */
   io: InterviewIO;
-
-  /** A callback that will be called whenever a state change occurs. */
-  onChange?: (state: S) => void;
 
   /** A function that returns the current date (useful for testing). */
   getDate?: () => Date;
@@ -17,13 +16,12 @@ export interface InterviewOptions<S> {
  * a type that represents the state of the interview (e.g., the answers
  * to the questions the user has been asked).
  */
-export abstract class Interview<S> {
-  private onChange?: (state: S) => void;
+export abstract class Interview<S> extends EventEmitter {
   readonly getDate: () => Date;
   readonly io: InterviewIO;
 
   constructor(options: InterviewOptions<S>) {
-    this.onChange = options.onChange;
+    super();
     this.getDate = options.getDate || (() => new Date());
     this.io = options.io;
   }
@@ -56,12 +54,15 @@ export abstract class Interview<S> {
       if (nextState === state) {
         break;
       }
+      this.emit('change', state, nextState);
       state = nextState;
-      if (this.onChange) {
-        this.onChange(state);
-      }
     }
 
     return state;
   }
+}
+
+export interface Interview<S> {
+  emit(event: 'change', prevState: S, nextState: S): boolean;
+  on(event: 'change', listener: (prevState: S, nextState: S) => void): this;
 }
