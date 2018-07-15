@@ -13,6 +13,7 @@ import {
   MultiChoiceQuestion,
   NonBlankQuestion,
   YesNoQuestion,
+  DateQuestion,
 } from './question';
 
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
@@ -80,12 +81,15 @@ export class TenantInterview extends Interview<Tenant> {
     const wasReceived = await this.io.ask(new YesNoQuestion('Have you received your rental history yet?'));
 
     if (wasReceived) {
+      const details = await this.io.askMany({
+        dateReceived: new DateQuestion('When did you receive your rental history?'),
+        isRentStabilized: new YesNoQuestion('Are you rent stabilized?'),
+      });
       return {
         status: 'received',
         dateRequested: rentalHistory.dateRequested,
-        isRentStabilized: await this.io.ask(new YesNoQuestion('Are you rent stabilized?')),
-        dateReceived: '2018-07-20T21:48:17.449Z',  // TODO: Ask user for this!
-        photo: 'https://fakephoto'
+        photo: 'https://fakephoto',
+        ...details
       };
     } else {
       this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);

@@ -134,3 +134,27 @@ export class YesNoQuestion extends Question<boolean> {
     return new ValidationError('Please answer with "yes" or "no".');
   }
 }
+
+/**
+ * A question that asks for a date (not including the time).
+ */
+export class DateQuestion extends Question<Date> {
+  /** The text of the question, e.g. "When did you receive the letter?". */
+  text: string;
+
+  constructor(text: string) {
+    super();
+    this.text = text;
+  }
+
+  async processResponse(response: string): Promise<Date|ValidationError> {
+    const DATE_REGEX = /^\d\d\d\d-\d\d-\d\d$/;
+    if (DATE_REGEX.test(response)) {
+      const date = new Date(response);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+    return new ValidationError('Please specify a valid date in YYYY-MM-DD format.');
+  }
+}
