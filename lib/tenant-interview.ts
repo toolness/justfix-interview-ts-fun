@@ -68,8 +68,8 @@ export class TenantInterview extends Interview<Tenant> {
           ...tenant,
           rentalHistory: {
             status: 'requested',
-            dateRequested: this.getDate(),
-            nextReminder: addDays(this.getDate(), RENTAL_HISTORY_FOLLOWUP_DAYS)
+            dateRequested: this.now,
+            nextReminder: addDays(this.now, RENTAL_HISTORY_FOLLOWUP_DAYS)
           }
         };
       } else {
@@ -96,7 +96,7 @@ export class TenantInterview extends Interview<Tenant> {
       this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);
       return {
         ...rentalHistory,
-        nextReminder: addDays(this.getDate(), RENTAL_HISTORY_FOLLOWUP_DAYS)
+        nextReminder: addDays(this.now, RENTAL_HISTORY_FOLLOWUP_DAYS)
       };
     }
   }

@@ -8,8 +8,8 @@ export interface InterviewOptions<S> {
   /** The input/output used to communicate with the user. */
   io: InterviewIO;
 
-  /** A function that returns the current date (useful for testing). */
-  getDate?: () => Date;
+  /** The current date. */
+  now?: Date;
 }
 
 /**
@@ -42,12 +42,12 @@ export interface FollowUp<S> {
  * to the questions the user has been asked).
  */
 export abstract class Interview<S> extends EventEmitter {
-  readonly getDate: () => Date;
+  readonly now: Date;
   readonly io: InterviewIO;
 
   constructor(options: InterviewOptions<S>) {
     super();
-    this.getDate = options.getDate || (() => new Date());
+    this.now = options.now || new Date();
     this.io = options.io;
   }
 
@@ -83,7 +83,7 @@ export abstract class Interview<S> extends EventEmitter {
    */
   private async executeNextFollowUp(state: S): Promise<S> {
     for (let followUp of this.getFollowUps(state)) {
-      if (this.getDate() >= new Date(followUp.date)) {
+      if (this.now >= new Date(followUp.date)) {
         return await followUp.execute();
       }
     }
