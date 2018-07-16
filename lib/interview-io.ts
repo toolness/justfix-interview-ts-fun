@@ -75,8 +75,16 @@ export class ReadlineInterviewIO implements InterviewIO {
       throw new Error('Assertion failure, we are already asking a question!');
     }
 
+    let text = question.text;
+
+    // If the question ends with a period, make it end with a colon instead.
+    const sentenceMatch = text.match(/^(.+)\.$/);
+    if (sentenceMatch) {
+      text = `${sentenceMatch[1]}:`;
+    }
+
     this.isAsking = true;
-    const rawAnswer = await this.askRaw(`${question.text} `);
+    const rawAnswer = await this.askRaw(`${text} `);
     const result = await question.processResponse(rawAnswer);
     this.isAsking = false;
 

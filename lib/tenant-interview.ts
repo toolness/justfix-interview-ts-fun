@@ -14,6 +14,7 @@ import {
   NonBlankQuestion,
   YesNoQuestion,
   DateQuestion,
+  PhotoQuestion,
 } from './question';
 
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
@@ -84,11 +85,11 @@ export class TenantInterview extends Interview<Tenant> {
       const details = await this.io.askMany({
         dateReceived: new DateQuestion('When did you receive your rental history?'),
         isRentStabilized: new YesNoQuestion('Are you rent stabilized?'),
+        photo: new PhotoQuestion('Please submit a photograph of your rental history.')
       });
       return {
         status: 'received',
         dateRequested: rentalHistory.dateRequested,
-        photo: 'https://fakephoto',
         ...details
       };
     } else {

@@ -1,7 +1,4 @@
-import { DateString } from './util';
-
-/** A photo is just a URL to an image. */
-type Photo = string;
+import { DateString, Photo } from './util';
 
 export enum LeaseType {
   /** Market rate or free market lease. */

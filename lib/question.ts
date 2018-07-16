@@ -1,3 +1,5 @@
+import { Photo, toPhotoURL } from "./util";
+
 /** 
  * Represents a validation error for a question, e.g. when a user
  * provides an invalid response.
@@ -156,5 +158,30 @@ export class DateQuestion extends Question<Date> {
       }
     }
     return new ValidationError('Please specify a valid date in YYYY-MM-DD format.');
+  }
+}
+
+/**
+ * A question that asks for a photo upload.
+ */
+export class PhotoQuestion extends Question<Photo> {
+  /** The text of the question, e.g. "Please submit a photo of your rental history.". */
+  text: string;
+
+  constructor(text: string) {
+    super();
+    this.text = text;
+  }
+
+  async processResponse(response: string): Promise<Photo|ValidationError> {
+    const photo = await toPhotoURL(response);
+
+    if (!photo) {
+      return new ValidationError(
+        'That file either does not exist, or is not a valid photo (hint: try drag-and-drop).'
+      );
+    }
+
+    return photo;
   }
 }
