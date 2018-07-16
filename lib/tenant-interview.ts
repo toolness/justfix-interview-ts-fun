@@ -5,7 +5,7 @@ import {
   RentalHistory
 } from './tenant';
 
-import { Interview } from './interview';
+import { Interview, FollowUp } from './interview';
 
 import { addDays } from './util';
 
@@ -128,15 +128,24 @@ export class TenantInterview extends Interview<Tenant> {
       return this.askForRentalHistory(tenant);
     }
 
-    if (tenant.rentalHistory.status === 'requested') {
-      if (this.getDate() >= new Date(tenant.rentalHistory.nextReminder)) {
-        return {
+    return tenant;
+  }
+
+  getFollowUps(tenant: Tenant): FollowUp<Tenant>[] {
+    const followUps: FollowUp<Tenant>[] = [];
+
+    const rentalHistory = tenant.rentalHistory;
+    if (rentalHistory && rentalHistory.status === 'requested') {
+      followUps.push({
+        date: rentalHistory.nextReminder,
+        name: 'Rental history follow-up',
+        execute: async () => ({
           ...tenant,
-          rentalHistory: await this.followupRentalHistory(tenant.rentalHistory)
-        }
-      }
+          rentalHistory: await this.followupRentalHistory(rentalHistory)
+        }),
+      });
     }
 
-    return tenant;
+    return followUps;
   }
 }

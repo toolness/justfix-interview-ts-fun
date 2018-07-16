@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 
+import { DateString } from './util';
 import { Question, ValidationError } from './question';
 import { InterviewIO } from './interview-io';
 
@@ -9,6 +10,30 @@ export interface InterviewOptions<S> {
 
   /** A function that returns the current date (useful for testing). */
   getDate?: () => Date;
+}
+
+/**
+ * A scheduled follow-up portion of an interview, parameterized by
+ * the state of the interview. For example, if the
+ * interview asks the user to do something in the next week, it
+ * might schedule a follow-up for a week later to ask the user
+ * if they've done it yet.
+ */
+export interface FollowUp<S> {
+  /** The scheduled date of the follow-up. */
+  date: DateString;
+
+  /** 
+   * The name of the follow-up. At the time of this writing, this isn't
+   * actually used anywhere, but eventually it might be.
+   */
+  name: string;
+
+  /**
+   * Execute the follow-up action. This should already be bound to a
+   * specific interview state by the code that created the follow-up.
+   */
+  execute: () => Promise<S>;
 }
 
 /**
@@ -41,6 +66,31 @@ export abstract class Interview<S> extends EventEmitter {
   abstract async askNext(state: S): Promise<S>;
 
   /**
+   * This is an optional method that returns all the follow-ups
+   * for the interview, given its current state.
+   * 
+   * @param state The current state of the interview.
+   */
+  getFollowUps(state: S): FollowUp<S>[] {
+    return [];
+  }
+
+  /**
+   * Execute the next valid follow-up, if any. If no valid
+   * follow-ups are available, the original state is returned.
+   * 
+   * @param state The current state of the interview.
+   */
+  private async executeNextFollowUp(state: S): Promise<S> {
+    for (let followUp of this.getFollowUps(state)) {
+      if (this.getDate() >= new Date(followUp.date)) {
+        return await followUp.execute();
+      }
+    }
+    return state;
+  }
+
+  /**
    * Runs the interview, asking the user questions until they
    * are exhausted. Returns the final state of the interview.
    * 
@@ -50,7 +100,10 @@ export abstract class Interview<S> extends EventEmitter {
     let state = initialState;
 
     while (true) {
-      const nextState = await this.askNext(state);
+      let nextState = await this.askNext(state);
+      if (nextState === state) {
+        nextState = await this.executeNextFollowUp(state);
+      }
       if (nextState === state) {
         break;
       }
