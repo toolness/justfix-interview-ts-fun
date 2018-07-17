@@ -1,4 +1,5 @@
-import { Photo, toPhotoURL } from "./util";
+import { Photo } from "./util";
+import { toPhotoURL } from "./fs-util";
 
 /** 
  * Represents a validation error for a question, e.g. when a user
