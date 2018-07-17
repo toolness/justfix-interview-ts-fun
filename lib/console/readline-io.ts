@@ -7,7 +7,7 @@ import { PhotoQuestion } from './photo';
 import { Photo } from '../util';
 
 /** Standard interview i/o that uses readline/stdout. */
-export class ReadlineInterviewIO implements InterviewIO {
+export class ReadlineInterviewIO extends InterviewIO {
   private rl: readline.ReadLine;
   private output: NodeJS.WriteStream;
   private isAsking: boolean;
@@ -17,6 +17,7 @@ export class ReadlineInterviewIO implements InterviewIO {
    * @param output The stream to which output will be written. Defaults to stdout.
    */
   constructor(rl?: readline.ReadLine, output?: NodeJS.WriteStream) {
+    super();
     this.isAsking = false;
     this.output = output || process.stdout;
     this.rl = rl || readline.createInterface({

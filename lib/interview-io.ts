@@ -1,4 +1,13 @@
-import { Question, ValidationError } from './question';
+import {
+  Question,
+  ValidationError,
+  DateQuestion,
+  MultiChoiceAnswer,
+  MultiChoiceQuestion,
+  YesNoQuestion,
+  NonBlankQuestion
+} from './question';
+
 import { Photo } from './util';
 
 /**
@@ -18,12 +27,12 @@ export type QuestionsFor<T> = {
  * This interface has been designed to conduct interviews using multiple
  * communication media (voice, SMS, web, etc).
  */
-export interface InterviewIO {
+export abstract class InterviewIO {
   /** 
    * Ask a question of the user. If the user provides invalid input, keep asking.
    * @param question The question to ask.
    */
-  ask<T>(question: Question<T>): Promise<T>;
+  abstract ask<T>(question: Question<T>): Promise<T>;
 
   /**
    * Ask a number of questions of the user. Some user interfaces,
@@ -32,15 +41,31 @@ export interface InterviewIO {
    * @param questions A mapping from string keys to questions. The
    *   return value will contain the answers, mapped using the same keys.
    */
-  askMany<T>(questions: QuestionsFor<T>): Promise<T>;
+  abstract askMany<T>(questions: QuestionsFor<T>): Promise<T>;
 
   /**
    * Notify the user with important information.
    */
-  notify(text: string): void;
+  abstract notify(text: string): void;
 
   /**
    * Create a question that asks for a photo.
    */
-  createPhotoQuestion(text: string): Question<Photo>;
+  abstract createPhotoQuestion(text: string): Question<Photo>;
+
+  createDateQuestion(text: string): Question<Date> {
+    return new DateQuestion(text);
+  }
+
+  createMultiChoiceQuestion<T>(text: string, answers: MultiChoiceAnswer<T>[]): Question<T> {
+    return new MultiChoiceQuestion(text, answers);
+  }
+
+  createYesNoQuestion(text: string): Question<boolean> {
+    return new YesNoQuestion(text);
+  }
+
+  createNonBlankQuestion(text: string): Question<string> {
+    return new NonBlankQuestion(text);
+  }
 }

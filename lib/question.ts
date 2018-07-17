@@ -47,7 +47,7 @@ export abstract class Question<T> {
  * The first member represents the actual data value, while
  * the second represnts the human-readable text for it.
  */
-type MultiChoiceAnswer<T> = [T, string];
+export type MultiChoiceAnswer<T> = [T, string];
 
 /**
  * A multiple-choice question. Answers are automatically
