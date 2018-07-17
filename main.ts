@@ -26,7 +26,7 @@ Arguments:
 
 The current interview state is stored in "${STATE_FILE}".
 You can edit or delete this to change the state of the interview.
-`;
+`.trim();
 
 function log(msg: string) {
   console.log(chalk.gray(msg));
@@ -45,7 +45,7 @@ if (module.parent === null) {
   let now = new Date();
 
   if (argv.help) {
-    console.log(HELP_TEXT.trim());
+    console.log(HELP_TEXT);
     process.exit(0);
   }
 
