@@ -1,0 +1,10 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                ".tenant-interview-state.json"
+            ],
+            "url": "./tenant.schema.json"
+        }
+    ]
+}

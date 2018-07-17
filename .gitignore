@@ -1,3 +1,4 @@
 node_modules/
 dist/
 .tenant-interview-state.json
+tenant.schema.json
