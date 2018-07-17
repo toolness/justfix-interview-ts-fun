@@ -1,5 +1,8 @@
 import * as fs from 'fs';
+import minimist from 'minimist';
 import chalk from 'chalk';
+
+import { addDays } from './lib/util';
 
 import { TenantInterview } from './lib/tenant-interview';
 
@@ -12,8 +15,15 @@ function log(msg: string) {
 }
 
 if (module.parent === null) {
+  const argv = minimist(process.argv.slice(2));
+  let now = new Date();
+
+  if (!isNaN(parseInt(argv.days))) {
+    now = addDays(now, parseInt(argv.days));
+  }
+
   const io = new ReadlineInterviewIO();
-  const interview = new TenantInterview({ io });
+  const interview = new TenantInterview({ io, now });
   interview.on('change', (_, tenant) => {
     log(`Writing state to ${STATE_FILE}...`);
     fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });

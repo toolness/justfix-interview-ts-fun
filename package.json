@@ -9,8 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/minimist": "^1.2.0",
     "@types/node": "^10.5.2",
     "chalk": "^2.4.1",
+    "minimist": "^1.2.0",
     "typescript": "^2.9.2"
   }
 }
