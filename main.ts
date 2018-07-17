@@ -4,6 +4,8 @@ import chalk from 'chalk';
 
 import { addDays } from './lib/util';
 
+import { Tenant } from './lib/tenant';
+
 import { TenantInterview } from './lib/tenant-interview';
 
 import { ReadlineInterviewIO } from './lib/interview-io';
@@ -30,6 +32,14 @@ function log(msg: string) {
   console.log(chalk.gray(msg));
 }
 
+function getInitialState(): Tenant {
+  try {
+    return JSON.parse(fs.readFileSync(STATE_FILE, { encoding: 'utf-8' }));
+  } catch (e) {
+    return {};
+  }
+}
+
 if (module.parent === null) {
   const argv = minimist(process.argv.slice(2));
   let now = new Date();
@@ -49,13 +59,8 @@ if (module.parent === null) {
     log(`Writing state to ${STATE_FILE}...`);
     fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });
   });
-  let initialState = {};
 
-  try {
-    initialState = JSON.parse(fs.readFileSync(STATE_FILE, { encoding: 'utf-8' }));
-  } catch (e) {}
-
-  interview.execute(initialState).then(tenant => {
+  interview.execute(getInitialState()).then(tenant => {
     log(`Interview complete. Final state is in ${STATE_FILE}.`);
     io.close();
   }).catch((e: any) => {
