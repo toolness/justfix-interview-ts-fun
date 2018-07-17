@@ -67,8 +67,12 @@ export interface ReceivedRentalHistory extends BaseRentalHistory {
 export type RentalHistory = RequestedRentalHistory | ReceivedRentalHistory;
 
 interface _Tenant {
+  /** The tenant's full name. */
   name: string;
+
+  /** The tenant's phone number. (TODO: how should this be formatted?) */
   phoneNumber: string;
+
   leaseType: LeaseType;
   housingIssues: HousingIssues;
   rentalHistory: RentalHistory;
