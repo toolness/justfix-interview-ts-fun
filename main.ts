@@ -5,7 +5,7 @@ import { addDays } from './lib/util';
 import { Tenant } from './lib/tenant';
 import { TenantInterview } from './lib/tenant-interview';
 import { ReadlineInterviewIO } from './lib/console/readline-io';
-import { FileSerializer } from './lib/serializer';
+import { FileSerializer } from './lib/console/serializer';
 
 const SCRIPT = process.argv[1];
 
