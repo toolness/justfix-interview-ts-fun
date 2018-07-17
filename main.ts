@@ -8,7 +8,23 @@ import { TenantInterview } from './lib/tenant-interview';
 
 import { ReadlineInterviewIO } from './lib/interview-io';
 
+const SCRIPT = process.argv[1];
+
 const STATE_FILE = '.tenant-interview-state.json';
+
+const HELP_TEXT = `
+Usage:
+
+  ${SCRIPT} [arguments]
+
+Arguments:
+
+  --days=DAYS    Set the current date to DAYS days from now.
+  --help         Show this help text.
+
+The current interview state is stored in "${STATE_FILE}".
+You can edit or delete this to change the state of the interview.
+`;
 
 function log(msg: string) {
   console.log(chalk.gray(msg));
@@ -17,6 +33,11 @@ function log(msg: string) {
 if (module.parent === null) {
   const argv = minimist(process.argv.slice(2));
   let now = new Date();
+
+  if (argv.help) {
+    console.log(HELP_TEXT.trim());
+    process.exit(0);
+  }
 
   if (!isNaN(parseInt(argv.days))) {
     now = addDays(now, parseInt(argv.days));
