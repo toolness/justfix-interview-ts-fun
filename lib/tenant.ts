@@ -37,22 +37,28 @@ export interface HousingIssues {
   hasOther: boolean;
 }
 
-export interface BaseRentalHistory {
-  status: string;
+export interface AcceptedRentalHistory {
+  /**
+   * The state indicating that the user has given their permission for us
+   * to request their rental history.
+   */
+  status: 'accepted';
+}
+
+export interface RequestedRentalHistory {
+  status: 'requested';
 
   /** When the tenant requested their rental history. */
   dateRequested: DateString;
-}
-
-export interface RequestedRentalHistory extends BaseRentalHistory {
-  status: 'requested';
 
   /** The date when we'll next ask the tenant if they've received the history yet. */
   nextReminder: DateString;
 }
 
-export interface ReceivedRentalHistory extends BaseRentalHistory {
+export interface ReceivedRentalHistory {
   status: 'received';
+
+  dateRequested: DateString;
 
   /** When the tenant received their rental history. */
   dateReceived: DateString;
@@ -64,7 +70,7 @@ export interface ReceivedRentalHistory extends BaseRentalHistory {
   photo: Photo;
 }
 
-export type RentalHistory = RequestedRentalHistory | ReceivedRentalHistory;
+export type RentalHistory = AcceptedRentalHistory | RequestedRentalHistory | ReceivedRentalHistory;
 
 interface _Tenant {
   /** The tenant's full name. */

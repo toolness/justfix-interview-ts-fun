@@ -66,6 +66,17 @@ export abstract class Interview<S> extends EventEmitter {
   abstract async askNext(state: S): Promise<S>;
 
   /**
+   * This is an optional method that runs the next irreversible task that
+   * the interview is capable of undertaking (e.g. sending an email or
+   * real-world letter, filing a court case, etc).
+   *
+   * @param state The current state of the interview.
+   */
+  async runNextTask(state: S): Promise<S> {
+    return state;
+  }
+
+  /**
    * This is an optional method that returns all the follow-ups
    * for the interview, given its current state.
    * 
@@ -103,6 +114,9 @@ export abstract class Interview<S> extends EventEmitter {
       let nextState = await this.askNext(state);
       if (nextState === state) {
         nextState = await this.executeNextFollowUp(state);
+      }
+      if (nextState === state) {
+        nextState = await this.runNextTask(state);
       }
       if (nextState === state) {
         break;
