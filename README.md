@@ -15,6 +15,16 @@ This will run the CLI version of the interview.
 
 You can also run `npm start -- --help` for more information.
 
+## Motivation
+
+This experiment uses a combination of strong typing and
+functional programming paradigms to separate the interview
+logic from any specific communication medium--SMS, Web,
+et cetera--and ensure a reliable user experience that can be easily
+tested and iterated upon.
+
+That said, it might also be a terrible idea. We'll see.
+
 ## Development
 
 Aside from Node JS, this project uses [TypeScript][], so
