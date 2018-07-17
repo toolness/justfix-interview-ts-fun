@@ -1,14 +1,11 @@
-import * as fs from 'fs';
 import minimist from 'minimist';
 import chalk from 'chalk';
 
 import { addDays } from './lib/util';
-
 import { Tenant } from './lib/tenant';
-
 import { TenantInterview } from './lib/tenant-interview';
-
 import { ReadlineInterviewIO } from './lib/interview-io';
+import { FileSerializer } from './lib/serializer';
 
 const SCRIPT = process.argv[1];
 
@@ -32,14 +29,6 @@ function log(msg: string) {
   console.log(chalk.gray(msg));
 }
 
-function getInitialState(): Tenant {
-  try {
-    return JSON.parse(fs.readFileSync(STATE_FILE, { encoding: 'utf-8' }));
-  } catch (e) {
-    return {};
-  }
-}
-
 if (module.parent === null) {
   const argv = minimist(process.argv.slice(2));
   let now = new Date();
@@ -55,12 +44,13 @@ if (module.parent === null) {
 
   const io = new ReadlineInterviewIO();
   const interview = new TenantInterview({ io, now });
+  const serializer = new FileSerializer(STATE_FILE, {} as Tenant);
   interview.on('change', (_, tenant) => {
     log(`Writing state to ${STATE_FILE}...`);
-    fs.writeFileSync(STATE_FILE, JSON.stringify(tenant, null, 2), { encoding: 'utf-8' });
+    serializer.set(tenant);
   });
 
-  interview.execute(getInitialState()).then(tenant => {
+  interview.execute(serializer.get()).then(tenant => {
     log(`Interview complete. Final state is in ${STATE_FILE}.`);
     io.close();
   }).catch((e: any) => {
