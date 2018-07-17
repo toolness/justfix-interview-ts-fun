@@ -1,5 +1,4 @@
 import * as readline from 'readline';
-import * as stream from 'stream';
 
 import { InterviewIO, QuestionsFor } from '../interview-io';
 import { Question, ValidationError } from '../question';
