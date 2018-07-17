@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "schema": "typescript-json-schema tsconfig.json Tenant > tenant.schema.json"
+    "schema": "typescript-json-schema tsconfig.json Tenant > tenant.schema.json",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/main.js"
   },
   "author": "",
   "license": "ISC",
