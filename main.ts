@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { addDays } from './lib/util';
 import { Tenant } from './lib/tenant';
 import { TenantInterview } from './lib/tenant-interview';
-import { ReadlineInterviewIO } from './lib/interview-io';
+import { ReadlineInterviewIO } from './lib/console/readline-io';
 import { FileSerializer } from './lib/serializer';
 
 const SCRIPT = process.argv[1];

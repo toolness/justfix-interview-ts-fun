@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
 
-import { Photo } from './util';
+import { Photo } from '../util';
+import { Question, ValidationError } from '../question';
 
 /**
  * Converts a path to a photo into a Photo URL.
@@ -39,4 +40,29 @@ export async function toPhotoURL(pathname: string): Promise<Photo|null> {
   }
 
   return encodeURI(`file://${pathname}`);
+}
+
+/**
+ * A question that asks for a photo upload.
+ */
+export class PhotoQuestion extends Question<Photo> {
+  /** The text of the question, e.g. "Please submit a photo of your rental history.". */
+  text: string;
+
+  constructor(text: string) {
+    super();
+    this.text = text;
+  }
+
+  async processResponse(response: string): Promise<Photo|ValidationError> {
+    const photo = await toPhotoURL(response);
+
+    if (!photo) {
+      return new ValidationError(
+        'That file either does not exist, or is not a valid photo (hint: try drag-and-drop).'
+      );
+    }
+
+    return photo;
+  }
 }
