@@ -12,6 +12,54 @@ function getElement(selector: string): Element {
   return node;
 }
 
+class QuestionInput<T> {
+  container: HTMLDivElement;
+  input: HTMLInputElement;
+  error: HTMLDivElement|null;
+
+  constructor(readonly question: Question<T>) {
+    this.question = question;
+    this.container = document.createElement('div');
+
+    const p = document.createElement('p');
+    p.appendChild(document.createTextNode(question.text));
+    this.container.appendChild(p);
+
+    const input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    this.input  = input;
+    this.container.appendChild(input);
+
+    this.error = null;
+  }
+
+  showError(message: string) {
+    if (!this.error) {
+      this.error = document.createElement('div');
+      this.container.appendChild(this.error);
+    }
+    this.error.innerHTML = '';
+    this.error.appendChild(document.createTextNode(message));
+  }
+
+  hideError() {
+    if (this.error) {
+      this.container.removeChild(this.error);
+      this.error = null;
+    }
+  }
+
+  async respond(): Promise<T|null> {
+    const response = await this.question.processResponse(this.input.value);
+    if (response instanceof ValidationError) {
+      this.showError(response.message);
+      return null;
+    }
+    this.hideError();
+    return response;
+  }
+}
+
 class WebInterviewIO extends InterviewIO {
   constructor(readonly root: Element) {
     super();
@@ -21,13 +69,8 @@ class WebInterviewIO extends InterviewIO {
   ask<T>(question: Question<T>): Promise<T> {
     const form = document.createElement('form');
 
-    const p = document.createElement('p');
-    p.appendChild(document.createTextNode(question.text));
-    form.appendChild(p);
-
-    const input = document.createElement('input');
-    input.setAttribute('type', 'text');
-    form.appendChild(input);
+    const qi = new QuestionInput(question);
+    form.appendChild(qi.container);
 
     const submit = document.createElement('input');
     submit.setAttribute('type', 'submit');
@@ -38,12 +81,11 @@ class WebInterviewIO extends InterviewIO {
     return new Promise((resolve, reject) => {
       form.onsubmit = (e) => {
         e.preventDefault();
-        question.processResponse(input.value).then(response => {
-          if (response instanceof ValidationError) {
-            window.alert(response.message);
-            return;
+        qi.respond().then(response => {
+          if (response) {
+            this.root.removeChild(form);
+            return resolve(response);
           }
-          resolve(response);
         }).catch(reject);
       };
     });
