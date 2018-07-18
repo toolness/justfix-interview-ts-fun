@@ -1,7 +1,10 @@
 import { InterviewIO, QuestionsFor } from '../lib/interview-io';
 import { Question, ValidationError } from '../lib/question';
-import { Photo } from '../lib/util';
+import { Photo, addDays } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
+import { Tenant } from '../lib/tenant';
+
+import * as querystring from 'querystring';
 
 function getElement(selector: string): Element {
   const node = document.querySelector(selector);
@@ -139,12 +142,59 @@ class WebInterviewIO extends InterviewIO {
   }
 }
 
+export class LocalStorageSerializer<S> {
+  constructor(readonly keyname: string, readonly defaultState: S) {
+    this.keyname = keyname;
+    this.defaultState = defaultState;
+  }
+
+  get(): S {
+    try {
+      const contents = window.localStorage[this.keyname];
+      return JSON.parse(contents);
+    } catch (e) {
+      return this.defaultState;
+    }
+  }
+
+  set(state: S) {
+    const contents = JSON.stringify(state, null, 2);
+    window.localStorage[this.keyname] = contents;
+  }
+}
+
+function getQuerystringParam(name: string): string {
+  const query = querystring.parse(window.location.search.slice(1));
+  const value = query[name];
+
+  if (value) {
+    if (Array.isArray(value)) {
+      return value[0];
+    }
+  }
+
+  return '';
+}
+
 window.addEventListener('load', () => {
   const io = new WebInterviewIO(getElement('#main'));
-  const now = new Date();
-  const interview = new TenantInterview({ io, now });
+  let now = new Date();
+  const days = parseInt(getQuerystringParam('days'));
 
-  interview.execute({}).then(tenant => {
+  if (!isNaN(days)) {
+    now = addDays(now, days);
+  }
+
+  const interview = new TenantInterview({ io, now });
+  const serializer = new LocalStorageSerializer('tenantState', {} as Tenant);
+
+  (window as any).serializer = serializer;
+
+  interview.on('change', (_, nextState) => {
+    console.log(`Updating localStorage['${serializer.keyname}'].`);
+    serializer.set(nextState);
+  });
+  interview.execute(serializer.get()).then(tenant => {
     console.log('Interview complete.');
   });
 });
