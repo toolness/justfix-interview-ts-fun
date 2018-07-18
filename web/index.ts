@@ -75,29 +75,8 @@ class WebInterviewIO extends InterviewIO {
     this.root = root;
   }
 
-  ask<T>(question: Question<T>): Promise<T> {
-    const form = document.createElement('form');
-
-    const qi = new QuestionInput(question);
-    form.appendChild(qi.container);
-
-    const submit = document.createElement('input');
-    submit.setAttribute('type', 'submit');
-    form.appendChild(submit);
-
-    this.root.appendChild(form);
-
-    return new Promise((resolve, reject) => {
-      form.onsubmit = (e) => {
-        e.preventDefault();
-        qi.respond().then(response => {
-          if (response) {
-            this.root.removeChild(form);
-            return resolve(response);
-          }
-        }).catch(reject);
-      };
-    });
+  async ask<T>(question: Question<T>): Promise<T> {
+    return (await this.askMany({ question })).question;
   }
 
   async askMany<T>(questions: QuestionsFor<T>): Promise<T> {
