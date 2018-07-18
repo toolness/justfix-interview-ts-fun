@@ -123,7 +123,15 @@ class WebInterviewIO extends InterviewIO {
   }
 
   notify(text: string) {
-    throw new Error('not implemented');
+    const notification = document.createElement('div');
+    notification.appendChild(document.createTextNode(text));
+    notification.appendChild(document.createTextNode(' '));
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    notification.appendChild(closeBtn);
+    this.root.appendChild(notification);
+    closeBtn.onclick = () => this.root.removeChild(notification);
+    return closeBtn;
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
