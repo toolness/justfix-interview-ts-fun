@@ -103,7 +103,7 @@ class WebInterviewIO extends InterviewIO {
       let isValid = true;
       for (let key in questionInputs) {
         const response = await questionInputs[key].respond();
-        if (response) {
+        if (response !== null) {
           responses[key] = response;
         } else {
           isValid = false;
