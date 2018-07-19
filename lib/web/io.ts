@@ -2,6 +2,30 @@ import { InterviewIO, QuestionsFor } from '../interview-io';
 import { Question, ValidationError } from '../question';
 import { Photo } from '../util';
 
+interface WebWidget<T> {
+  getElement: () => Element;
+  processElement: () => Promise<T|ValidationError>;
+}
+
+type WebQuestion<T> = WebWidget<T> & Question<T>;
+
+function isWebQuestion<T>(question: Question<T>): question is WebQuestion<T> {
+  return typeof((<WebQuestion<T>>question).getElement) === 'function';
+}
+
+function createWebWidget<T>(question: Question<T>): WebWidget<T> {
+  if (isWebQuestion(question)) {
+    return question;
+  } else {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    return {
+      getElement: () => input,
+      processElement: () => question.processResponse(input.value)
+    };
+  }
+}
+
 /**
  * This is a mapped type [1] consisting of properties that consist
  * of question inputs whose answers map to the original property types.
@@ -14,7 +38,7 @@ export type QuestionInputsFor<T> = {
 
 export class QuestionInput<T> {
   container: HTMLDivElement;
-  input: HTMLInputElement;
+  widget: WebWidget<T>;
   error: HTMLDivElement|null;
 
   constructor(readonly question: Question<T>) {
@@ -25,11 +49,8 @@ export class QuestionInput<T> {
     p.appendChild(document.createTextNode(question.text));
     this.container.appendChild(p);
 
-    const input = document.createElement('input');
-    input.setAttribute('type', 'text');
-    this.input  = input;
-    this.container.appendChild(input);
-
+    this.widget = createWebWidget(question);
+    this.container.appendChild(this.widget.getElement());
     this.error = null;
   }
 
@@ -50,7 +71,8 @@ export class QuestionInput<T> {
   }
 
   async respond(): Promise<T|null> {
-    const response = await this.question.processResponse(this.input.value);
+    let response = await this.widget.processElement();
+
     if (response instanceof ValidationError) {
       this.showError(response.message);
       return null;
