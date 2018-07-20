@@ -18,8 +18,8 @@ const INITIAL_APP_STATE: AppState = {
 function restart() {
   const resetButton = getElement('button#reset') as HTMLButtonElement;
   const daysInput = getElement('input#days') as HTMLInputElement;
-  const timeTravelForm = getElement('form#time-travel') as HTMLFormElement;
   const mainDiv = getElement('div#main') as HTMLDivElement;
+  const dateSpan = getElement('span#date') as HTMLSpanElement;
 
   mainDiv.innerHTML = '';
 
@@ -31,6 +31,7 @@ function restart() {
     now: addDays(new Date(), serializer.get().days)
   });
 
+  dateSpan.textContent = interview.now.toDateString();
   daysInput.value = serializer.get().days.toString();
 
   resetButton.onclick = () => {
@@ -38,7 +39,7 @@ function restart() {
     restart();
   };
 
-  timeTravelForm.onsubmit = (e) => {
+  daysInput.onchange = (e) => {
     e.preventDefault();
     serializer.set({
       ...serializer.get(),
