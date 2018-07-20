@@ -15,6 +15,15 @@ This will run the CLI version of the interview.
 
 You can also run `npm start -- --help` for more information.
 
+## Web front-end
+
+There's also a web-based version of the interview. To run it,
+use:
+
+```
+npm run serve
+```
+
 ## Motivation
 
 This experiment uses a combination of strong typing and

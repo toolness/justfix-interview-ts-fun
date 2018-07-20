@@ -9,8 +9,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "start": "node dist/main.js",
-    "build-web": "webpack",
-    "watch-web": "webpack --watch"
+    "serve": "webpack-serve --open-path=/web/"
   },
   "author": "",
   "license": "ISC",
@@ -22,7 +21,8 @@
     "ts-loader": "^4.4.2",
     "typescript": "^2.9.2",
     "typescript-json-schema": "^0.26.0",
-    "webpack": "^4.16.1"
+    "webpack": "^4.16.1",
+    "webpack-serve": "^2.0.2"
   },
   "devDependencies": {
     "webpack-cli": "^3.0.8"
