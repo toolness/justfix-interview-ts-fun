@@ -1,6 +1,5 @@
 import {
   Question,
-  ValidationError,
   DateQuestion,
   MultiChoiceAnswer,
   MultiChoiceQuestion,
