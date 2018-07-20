@@ -10,6 +10,7 @@ window.addEventListener('load', () => {
   const io = new WebInterviewIO(getElement('#main'));
   let now = new Date();
   const days = parseInt(getQuerystringParam('days'));
+  const resetButton = document.createElement('button');
 
   if (!isNaN(days)) {
     now = addDays(now, days);
@@ -18,7 +19,12 @@ window.addEventListener('load', () => {
   const interview = new TenantInterview({ io, now });
   const serializer = new LocalStorageSerializer('tenantState', {} as Tenant);
 
-  (window as any).serializer = serializer;
+  resetButton.textContent = "Reset interview";
+  resetButton.onclick = () => {
+    serializer.set({});
+    window.location.reload();
+  };
+  io.root.appendChild(resetButton);
 
   interview.on('change', (_, nextState) => {
     console.log(`Updating localStorage['${serializer.keyname}'].`);
