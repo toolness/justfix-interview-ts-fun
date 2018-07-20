@@ -1,8 +1,9 @@
 import { InterviewIO, QuestionsFor } from '../interview-io';
 import { Question, ValidationError } from '../question';
 import { Photo } from '../util';
+import { PhotoQuestion } from './photo';
 
-interface WebWidget<T> {
+export interface WebWidget<T> {
   getElement: () => Element;
   processElement: () => Promise<T|ValidationError>;
 }
@@ -148,6 +149,6 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
-    throw new Error('not implemented');
+    return new PhotoQuestion(text);
   }
 }
