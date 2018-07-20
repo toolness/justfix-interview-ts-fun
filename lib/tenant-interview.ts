@@ -9,19 +9,11 @@ import { Interview, FollowUp } from './interview';
 
 import { addDays } from './util';
 
-import {
-  MultiChoiceQuestion,
-  NonBlankQuestion,
-  YesNoQuestion,
-  DateQuestion,
-  PhotoQuestion,
-} from './question';
-
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
 
 export class TenantInterview extends Interview<Tenant> {
   async askForLeaseType(tenant: Tenant): Promise<Tenant> {
-    const leaseType = await this.io.ask(new MultiChoiceQuestion(
+    const leaseType = await this.io.ask(this.io.createMultiChoiceQuestion(
       'What kind of lease do you have?',
       [
         [LeaseType.MarketRate, 'Market rate'],
@@ -37,12 +29,12 @@ export class TenantInterview extends Interview<Tenant> {
 
   async askForHousingIssues(tenant: Tenant): Promise<Tenant> {
     const housingIssues = await this.io.askMany({
-      needsRepairs: new YesNoQuestion('Does your apartment need repairs?'),
-      isHarassed: new YesNoQuestion('Are you being harassed by your landlord?'),
-      isFacingEviction: new YesNoQuestion('Are you facing eviction?'),
-      hasLeaseIssues: new YesNoQuestion('Are you having issues with your lease?'),
-      hasNoServices: new YesNoQuestion('Are you living without essential services, like heat/gas/hot water?'),
-      hasOther: new YesNoQuestion('Do you have any other apartment issues?'),
+      needsRepairs: this.io.createYesNoQuestion('Does your apartment need repairs?'),
+      isHarassed: this.io.createYesNoQuestion('Are you being harassed by your landlord?'),
+      isFacingEviction: this.io.createYesNoQuestion('Are you facing eviction?'),
+      hasLeaseIssues: this.io.createYesNoQuestion('Are you having issues with your lease?'),
+      hasNoServices: this.io.createYesNoQuestion('Are you living without essential services, like heat/gas/hot water?'),
+      hasOther: this.io.createYesNoQuestion('Do you have any other apartment issues?'),
     });
 
     if (housingIssues.isFacingEviction) {
@@ -57,7 +49,7 @@ export class TenantInterview extends Interview<Tenant> {
 
   async askForRentalHistory(tenant: Tenant): Promise<Tenant> {
     while (true) {
-      const permission = await this.io.ask(new YesNoQuestion('Can we request your rental history from your landlord?'));
+      const permission = await this.io.ask(this.io.createYesNoQuestion('Can we request your rental history from your landlord?'));
       if (permission) {
         return { ...tenant, rentalHistory: { status: 'accepted' } };
       } else {
@@ -67,13 +59,13 @@ export class TenantInterview extends Interview<Tenant> {
   }
 
   async followupRentalHistory(rentalHistory: RequestedRentalHistory): Promise<RentalHistory> {
-    const wasReceived = await this.io.ask(new YesNoQuestion('Have you received your rental history yet?'));
+    const wasReceived = await this.io.ask(this.io.createYesNoQuestion('Have you received your rental history yet?'));
 
     if (wasReceived) {
       const details = await this.io.askMany({
-        dateReceived: new DateQuestion('When did you receive your rental history?'),
-        isRentStabilized: new YesNoQuestion('Are you rent stabilized?'),
-        photo: new PhotoQuestion('Please submit a photograph of your rental history.')
+        dateReceived: this.io.createDateQuestion('When did you receive your rental history?'),
+        isRentStabilized: this.io.createYesNoQuestion('Are you rent stabilized?'),
+        photo: this.io.createPhotoQuestion('Please submit a photograph of your rental history.')
       });
       return {
         status: 'received',
@@ -93,7 +85,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (!tenant.name) {
       return {
         ...tenant,
-        name: await this.io.ask(new NonBlankQuestion('What is your name?'))
+        name: await this.io.ask(this.io.createNonBlankQuestion('What is your name?'))
       };
     }
 
@@ -108,7 +100,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (!tenant.phoneNumber) {
       return {
         ...tenant,
-        phoneNumber: await this.io.ask(new NonBlankQuestion('What is your phone number?'))
+        phoneNumber: await this.io.ask(this.io.createNonBlankQuestion('What is your phone number?'))
       };
     }
 

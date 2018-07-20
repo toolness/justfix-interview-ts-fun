@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 
 import { DateString } from './util';
-import { Question, ValidationError } from './question';
 import { InterviewIO } from './interview-io';
 
 export interface InterviewOptions<S> {

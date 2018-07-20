@@ -1,7 +1,14 @@
-import * as readline from 'readline';
-import * as stream from 'stream';
+import {
+  Question,
+  ValidationError,
+  DateQuestion,
+  MultiChoiceAnswer,
+  MultiChoiceQuestion,
+  YesNoQuestion,
+  NonBlankQuestion
+} from './question';
 
-import { Question, ValidationError } from './question';
+import { Photo } from './util';
 
 /**
  * This is a mapped type [1] consisting of properties that consist
@@ -9,7 +16,7 @@ import { Question, ValidationError } from './question';
  * 
  * [1] https://www.typescriptlang.org/docs/handbook/advanced-types.html#mapped-types
  */
-type QuestionsFor<T> = {
+export type QuestionsFor<T> = {
   [P in keyof T]: Question<T[P]>;
 };
 
@@ -20,12 +27,12 @@ type QuestionsFor<T> = {
  * This interface has been designed to conduct interviews using multiple
  * communication media (voice, SMS, web, etc).
  */
-export interface InterviewIO {
+export abstract class InterviewIO {
   /** 
    * Ask a question of the user. If the user provides invalid input, keep asking.
    * @param question The question to ask.
    */
-  ask<T>(question: Question<T>): Promise<T>;
+  abstract ask<T>(question: Question<T>): Promise<T>;
 
   /**
    * Ask a number of questions of the user. Some user interfaces,
@@ -34,84 +41,31 @@ export interface InterviewIO {
    * @param questions A mapping from string keys to questions. The
    *   return value will contain the answers, mapped using the same keys.
    */
-  askMany<T>(questions: QuestionsFor<T>): Promise<T>;
+  abstract askMany<T>(questions: QuestionsFor<T>): Promise<T>;
 
   /**
    * Notify the user with important information.
    */
-  notify(text: string): void;
-}
-
-/** Standard interview i/o that uses readline/stdout. */
-export class ReadlineInterviewIO implements InterviewIO {
-  private rl: readline.ReadLine;
-  private output: NodeJS.WriteStream;
-  private isAsking: boolean;
+  abstract notify(text: string): void;
 
   /**
-   * @param rl A ReadLine object for the interview. If not provided, stdio will be used.
-   * @param output The stream to which output will be written. Defaults to stdout.
+   * Create a question that asks for a photo.
    */
-  constructor(rl?: readline.ReadLine, output?: NodeJS.WriteStream) {
-    this.isAsking = false;
-    this.output = output || process.stdout;
-    this.rl = rl || readline.createInterface({
-      input: process.stdin,
-      output: this.output
-    });
+  abstract createPhotoQuestion(text: string): Question<Photo>;
+
+  createDateQuestion(text: string): Question<Date> {
+    return new DateQuestion(text);
   }
 
-  /** This is just a promisified wrapper around ReadLine.question(). */
-  private askRaw(query: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.rl.question(query, answer => {
-        resolve(answer);
-      });
-    });
+  createMultiChoiceQuestion<T>(text: string, answers: MultiChoiceAnswer<T>[]): Question<T> {
+    return new MultiChoiceQuestion(text, answers);
   }
 
-  async ask<T>(question: Question<T>): Promise<T> {
-    if (this.isAsking) {
-      throw new Error('Assertion failure, we are already asking a question!');
-    }
-
-    let text = question.text;
-
-    // If the question ends with a period, make it end with a colon instead.
-    const sentenceMatch = text.match(/^(.+)\.$/);
-    if (sentenceMatch) {
-      text = `${sentenceMatch[1]}:`;
-    }
-
-    this.isAsking = true;
-    const rawAnswer = await this.askRaw(`${text} `);
-    const result = await question.processResponse(rawAnswer);
-    this.isAsking = false;
-
-    if (result instanceof ValidationError) {
-      this.output.write(`${result.message}\n`);
-      return this.ask(question);
-    }
-
-    return result;
+  createYesNoQuestion(text: string): Question<boolean> {
+    return new YesNoQuestion(text);
   }
 
-  async askMany<T>(questions: QuestionsFor<T>): Promise<T> {
-    const result = {} as T;
-
-    for (let key in questions) {
-      result[key] = await this.ask(questions[key]);
-    }
-
-    return result;
-  }
-
-  notify(text: string) {
-    this.output.write(`${text}\n`);
-  }
-
-  /** Close the underlying ReadLine object. */
-  close() {
-    this.rl.close();
+  createNonBlankQuestion(text: string): Question<string> {
+    return new NonBlankQuestion(text);
   }
 }
