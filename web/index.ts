@@ -3,36 +3,61 @@ import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
 import { WebInterviewIO } from '../lib/web/io';
-import { getElement, getQuerystringParam } from '../lib/web/util';
+import { getElement } from '../lib/web/util';
 
+interface AppState {
+  days: number,
+  tenant: Tenant,
+}
 
-window.addEventListener('load', () => {
-  const io = new WebInterviewIO(getElement('#main'));
-  let now = new Date();
-  const days = parseInt(getQuerystringParam('days'));
-  const resetButton = getElement('#reset') as HTMLButtonElement;
-  const daysInput = getElement('#days') as HTMLInputElement;
+const INITIAL_APP_STATE: AppState = {
+  days: 0,
+  tenant: {}
+};
 
-  if (!isNaN(days)) {
-    now = addDays(now, days);
-    daysInput.value = days.toString();
-  } else {
-    daysInput.value = '0';
-  }
+function restart() {
+  const resetButton = getElement('button#reset') as HTMLButtonElement;
+  const daysInput = getElement('input#days') as HTMLInputElement;
+  const timeTravelForm = getElement('form#time-travel') as HTMLFormElement;
+  const mainDiv = getElement('div#main') as HTMLDivElement;
 
-  const interview = new TenantInterview({ io, now });
-  const serializer = new LocalStorageSerializer('tenantState', {} as Tenant);
+  mainDiv.innerHTML = '';
+
+  const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE);
+  const io = new WebInterviewIO(mainDiv);
+
+  const interview = new TenantInterview({
+    io,
+    now: addDays(new Date(), serializer.get().days)
+  });
+
+  daysInput.value = serializer.get().days.toString();
 
   resetButton.onclick = () => {
-    serializer.set({});
-    window.location.href = "?days=0";
+    serializer.set(INITIAL_APP_STATE);
+    restart();
+  };
+
+  timeTravelForm.onsubmit = (e) => {
+    e.preventDefault();
+    serializer.set({
+      ...serializer.get(),
+      days: parseInt(daysInput.value)
+    });
+    restart();
   };
 
   interview.on('change', (_, nextState) => {
     console.log(`Updating localStorage['${serializer.keyname}'].`);
-    serializer.set(nextState);
+    serializer.set({
+      ...serializer.get(),
+      tenant: nextState
+    });
   });
-  interview.execute(serializer.get()).then(tenant => {
-    console.log('Interview complete.');
-  });
+
+  interview.execute(serializer.get().tenant);
+}
+
+window.addEventListener('load', () => {
+  restart();
 });
