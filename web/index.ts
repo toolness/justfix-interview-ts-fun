@@ -15,7 +15,11 @@ const INITIAL_APP_STATE: AppState = {
   tenant: {}
 };
 
-function restart() {
+interface RestartOptions {
+  pushState: boolean;
+}
+
+function restart(options: RestartOptions = { pushState: true }) {
   const resetButton = getElement('button#reset') as HTMLButtonElement;
   const daysInput = getElement('input#days') as HTMLInputElement;
   const mainDiv = getElement('div#main') as HTMLDivElement;
@@ -25,6 +29,19 @@ function restart() {
 
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE);
   const io = new WebInterviewIO(mainDiv);
+
+  if (options.pushState) {
+    window.history.pushState(serializer.get(), '', null);
+  } else {
+    window.history.replaceState(serializer.get(), '', null);
+  }
+
+  window.onpopstate = (event) => {
+    if (event.state) {
+      serializer.set(event.state);
+      restart({ pushState: false });
+    }
+  };
 
   const interview = new TenantInterview({
     io,
@@ -49,16 +66,16 @@ function restart() {
   };
 
   interview.on('change', (_, nextState) => {
-    console.log(`Updating localStorage['${serializer.keyname}'].`);
     serializer.set({
       ...serializer.get(),
       tenant: nextState
     });
+    window.history.pushState(serializer.get(), '', null);
   });
 
   interview.execute(serializer.get().tenant);
 }
 
 window.addEventListener('load', () => {
-  restart();
+  restart({ pushState: false });
 });
