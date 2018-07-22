@@ -17,6 +17,8 @@ interface QResultMap {
   'text': string;
 }
 
+type QAnswerTypes = QResultMap[keyof QResultMap];
+
 type Q = YesNoQ | TextQ;
 
 type QsFor<T> = {
@@ -28,8 +30,8 @@ type QsFor<T> = {
 
 type QResult<T extends Q> = QResultMap[T['type']];
 
-interface MultiQuestions<T> {
-  [key: string]: boolean | string;
+type MultiQuestions<T> = {
+  [P in keyof T]: QAnswerTypes;
 }
 
 function askMany<S, T extends MultiQuestions<S>>(questions: QsFor<T>): T {
