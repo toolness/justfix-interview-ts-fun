@@ -1,19 +1,32 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<link rel="stylesheet" href="vendor/bulma.css">
 <style>
 .jf-question {
   white-space: pre-wrap;
 }
 </style>
 <title>Interview fun</title>
-<h1>Interview fun</h1>
-<p>
-  Days in future: <input type="number" name="days" id="days" value="0">
-</p>
-<p>
-  Current simulated date is <span id="date"></span>.
-</p>
-<p><button id="reset">Reset interview</button></p>
-<hr>
-<div id="main"></div>
+<section class="section">
+  <div class="container">
+    <h1 class="is-size-1">Interview fun</h1>
+    <div class="field">
+      <label class="label">Days in future:</label>
+      <div class="control">
+        <input class="input" type="number" name="days" id="days" value="0">
+      </div>
+    </div>
+    <div class="notification">
+      Current simulated date is <span id="date"></span>.
+    </div>
+    <div class="control">
+      <button id="reset" class="button">Reset interview</button>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div id="main"></div>
+  </div>
+</section>
 <script src="/bundle.js"></script>
