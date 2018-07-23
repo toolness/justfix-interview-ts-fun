@@ -7,18 +7,49 @@ import { createUniqueId, makeInput, wrapInControlDiv } from './util';
 import { ModalBuilder } from './modal';
 import { WebDateQuestion } from './date';
 
+/**
+ * A WebWidget is an additional interface that can be implemented on
+ * a Question to indicate that it has native web support, and doesn't
+ * need to just be a text input field.
+ */
 export interface WebWidget<T> {
+  /**
+   * Returns the native HTML element for the question.
+   */
   getElement: () => Element;
+
+  /**
+   * Processes the current value of the question's web interface
+   * and returns its value (or a validation error if it's invalid).
+   */
   processElement: () => Promise<T|ValidationError>;
+
+  /**
+   * If the native HTML element contains an <input> that needs a label,
+   * this can be set to the "id" attribute of the <input>. Calling code
+   * is responsible for creating a <label> with a "for" attribute pointing
+   * to the id.
+   */
   labelForId?: string;
 }
 
+/** A WebQuestion is just a Question that supports the WebWidget interface. */
 type WebQuestion<T> = WebWidget<T> & Question<T>;
 
+/**
+ * Returns whether the given Question has native web support.
+ * 
+ * @param question A Question instance.
+ */
 function isWebQuestion<T>(question: Question<T>): question is WebQuestion<T> {
   return typeof((<WebQuestion<T>>question).getElement) === 'function';
 }
 
+/** 
+ * Given a Question, return a web-enabled version of it. If the
+ * Question doesn't have native web support, we wrap it in a
+ * simple text input field as a fallback.
+ */
 function createWebWidget<T>(question: Question<T>): WebWidget<T> {
   if (isWebQuestion(question)) {
     return question;
