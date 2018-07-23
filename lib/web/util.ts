@@ -1,5 +1,5 @@
-export function getElement(selector: string): Element {
-  const node = document.querySelector(selector);
+export function getElement(selector: string, parent: ParentNode = document): Element {
+  const node = parent.querySelector(selector);
   if (!node) {
     throw new Error(`Couldn't find any elements matching "${selector}"`);
   }

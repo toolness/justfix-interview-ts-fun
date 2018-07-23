@@ -4,6 +4,7 @@ import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
 import { createUniqueId } from './util';
+import { createModal } from './modal';
 
 export interface WebWidget<T> {
   getElement: () => Element;
@@ -155,15 +156,7 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   notify(text: string) {
-    const notification = document.createElement('div');
-    notification.appendChild(document.createTextNode(text));
-    notification.appendChild(document.createTextNode(' '));
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Close';
-    notification.appendChild(closeBtn);
-    this.root.appendChild(notification);
-    closeBtn.onclick = () => this.root.removeChild(notification);
-    return closeBtn;
+    createModal(text);
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
