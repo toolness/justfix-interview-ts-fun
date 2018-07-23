@@ -1,9 +1,8 @@
 import { Question, ValidationError } from "../question";
 import { Photo } from "../util";
 import { WebWidget } from "./io";
-import { resolve } from "url";
 
-export class PhotoQuestion extends Question<Photo> implements WebWidget<Photo> {
+export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo> {
   input: HTMLInputElement;
 
   constructor(readonly text: string) {

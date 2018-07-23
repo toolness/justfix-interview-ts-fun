@@ -1,7 +1,7 @@
 import { InterviewIO, QuestionsFor } from '../interview-io';
 import { Question, ValidationError } from '../question';
 import { Photo } from '../util';
-import { PhotoQuestion } from './photo';
+import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
 
 export interface WebWidget<T> {
@@ -150,7 +150,7 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
-    return new PhotoQuestion(text);
+    return new WebPhotoQuestion(text);
   }
 
   createYesNoQuestion(text: string): Question<boolean> {
