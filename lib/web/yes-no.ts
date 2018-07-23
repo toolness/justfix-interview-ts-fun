@@ -1,6 +1,6 @@
 import { ValidationError, YesNoQuestion } from "../question";
 import { WebWidget } from "./io";
-import { createUniqueId } from "./util";
+import { createUniqueId, makeRadio } from "./util";
 
 
 export class WebYesNoQuestion extends YesNoQuestion implements WebWidget<boolean> {
@@ -13,26 +13,8 @@ export class WebYesNoQuestion extends YesNoQuestion implements WebWidget<boolean
     super(text);
     this.div = document.createElement('div');
     this.inputName = createUniqueId();
-    this.yesInput = this.makeRadio('Yes');
-    this.noInput = this.makeRadio('No');
-  }
-
-  private makeRadio(labelText: string): HTMLInputElement {
-    const input = document.createElement('input');
-    const id = createUniqueId();
-    input.setAttribute('type', 'radio');
-    input.setAttribute('name', this.inputName);
-    input.setAttribute('value', labelText);
-    input.setAttribute('id', id);
-
-    const label = document.createElement('label');
-    label.setAttribute('for', id);
-    label.textContent = labelText;
-
-    this.div.appendChild(input);
-    this.div.appendChild(label);
-
-    return input;
+    this.yesInput = makeRadio(this.div, this.inputName, 'Yes').input;
+    this.noInput = makeRadio(this.div, this.inputName, 'No').input;
   }
 
   getElement(): HTMLElement {
