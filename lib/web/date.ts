@@ -17,7 +17,8 @@ export class WebDateQuestion extends DateQuestion implements WebWidget<Date> {
   }
 
   processElement() {
-    if ('valueAsDate' in <any>this.input) {
+    const isModernBrowser = 'valueAsDate' in <any>this.input;
+    if (isModernBrowser) {
       if (!this.input.valueAsDate) {
         return new ValidationError('Please provide a valid date!');
       }
