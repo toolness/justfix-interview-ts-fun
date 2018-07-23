@@ -20,6 +20,8 @@ interface RestartOptions {
   pushState: boolean;
 }
 
+let io: WebInterviewIO|null = null;
+
 function restart(options: RestartOptions = { pushState: true }) {
   const resetButton = getElement('button', '#reset');
   const daysInput = getElement('input', '#days');
@@ -27,10 +29,13 @@ function restart(options: RestartOptions = { pushState: true }) {
   const dateSpan = getElement('span', '#date');
   const modalTemplate = getElement('template', '#modal');
 
-  mainDiv.innerHTML = '';
+  if (io) {
+    io.close();
+    io = null;
+  }
 
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE);
-  const io = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
+  io = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
 
   if (options.pushState) {
     window.history.pushState(serializer.get(), '', null);

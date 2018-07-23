@@ -167,4 +167,9 @@ export class WebInterviewIO extends InterviewIO {
   createYesNoQuestion(text: string): Question<boolean> {
     return new WebYesNoQuestion(text);
   }
+
+  close() {
+    this.root.innerHTML = '';
+    this.modalBuilder.shutdown();
+  }
 }
