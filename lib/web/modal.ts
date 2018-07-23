@@ -1,14 +1,12 @@
 import { getElement } from "./util";
+import { EventEmitter } from "events";
 
 export class ModalBuilder {
-  modals: Modal[] = [];
+  modal: Modal|null = null;
 
   constructor(readonly template: HTMLTemplateElement) {
     this.template = template;
     this.create('this is a smoke test to make sure the template is valid!');
-
-    this.handleKeyUp = this.handleKeyUp.bind(this);
-    document.addEventListener('keyup', this.handleKeyUp);
   }
 
   private create(text: string): Modal {
@@ -21,55 +19,68 @@ export class ModalBuilder {
    * @param text The text to display in the modal.
    */
   createAndOpen(text: string) {
-    const modal = this.create(text);
-    this.modals.push(modal);
-    modal.open(() => {
-      modal.close();
-      this.modals.splice(this.modals.indexOf(modal), 1);
-    });
+    if (this.modal) {
+      this.modal.addText(text);
+    } else {
+      this.modal = this.create(text);
+      this.modal.on('close', () => {
+        this.modal = null;
+      });
+      this.modal.open();
+    }
   }
 
   shutdown() {
-    document.removeEventListener('keyup', this.handleKeyUp);
-    this.modals.forEach(modal => modal.close());
-    this.modals = [];
-  }
-
-  private handleKeyUp(event: KeyboardEvent) {
-    if (event.keyCode === 27) {
-      const modal = this.modals.pop();
-      if (modal) {
-        modal.close();
-      }
+    if (this.modal) {
+      this.modal.close();
     }
   }
 }
 
-class Modal {
+class Modal extends EventEmitter {
   modalDiv: HTMLDivElement;
   okButton: HTMLButtonElement;
   closeButton: HTMLButtonElement;
+  contentEl: HTMLDivElement;
 
   constructor(template: HTMLTemplateElement, text: string) {
+    super();
     const clone = document.importNode(template.content, true);
-    const modalDiv = getElement('div', '.modal', clone);
-    const contentEl = getElement('div', '[data-modal-content]', modalDiv);
 
-    this.modalDiv = modalDiv;
-    this.okButton = getElement('button', '.is-primary', modalDiv);
-    this.closeButton = getElement('button', '.modal-close', modalDiv);
+    this.modalDiv = getElement('div', '.modal', clone);
+    this.contentEl = getElement('div', '[data-modal-content]', this.modalDiv);
+    this.okButton = getElement('button', '.is-primary', this.modalDiv);
+    this.closeButton = getElement('button', '.modal-close', this.modalDiv);
 
-    contentEl.textContent = text;
+    this.close = this.close.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+
+    this.contentEl.textContent = text;
   }
 
-  open(onClose: () => void) {
+  open() {
     document.body.appendChild(this.modalDiv);
+    document.addEventListener('keyup', this.handleKeyUp);
     this.okButton.focus();
-    this.okButton.onclick = this.closeButton.onclick = onClose;
+    this.okButton.onclick = this.closeButton.onclick = this.close;
     // TODO: Trap keyboard focus and all the other accessibility bits.
   }
 
   close() {
     document.body.removeChild(this.modalDiv);
+    document.removeEventListener('keyup', this.handleKeyUp);
+    this.emit('close');
+  }
+
+  addText(text: string) {
+    this.contentEl.appendChild(document.createElement('br'));
+    this.contentEl.appendChild(document.createElement('br'));
+    this.contentEl.appendChild(document.createTextNode(text));
+  }
+
+  private handleKeyUp(event: KeyboardEvent) {
+    if (event.keyCode === 27) {
+      this.close();
+    }
   }
 }
