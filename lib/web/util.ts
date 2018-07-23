@@ -18,6 +18,21 @@ export function createUniqueId(): string {
   return `unique_id_${idCounter}`;
 }
 
+export function makeInput(type: string): HTMLInputElement {
+  const input = document.createElement('input');
+  input.type = type;
+  input.id = createUniqueId();
+  input.className = 'input';
+  return input;
+}
+
+export function wrapInControlDiv(el: Element): HTMLDivElement {
+  const control = document.createElement('div');
+  control.className = 'control';
+  control.appendChild(el);
+  return control;
+}
+
 export function makeRadio(parent: HTMLElement, inputName: string, labelText: string): {
   label: HTMLLabelElement,
   input: HTMLInputElement

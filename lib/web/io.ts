@@ -3,8 +3,9 @@ import { Question, ValidationError } from '../question';
 import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
-import { createUniqueId } from './util';
+import { createUniqueId, makeInput, wrapInControlDiv } from './util';
 import { ModalBuilder } from './modal';
+import { WebDateQuestion } from './date';
 
 export interface WebWidget<T> {
   getElement: () => Element;
@@ -22,18 +23,12 @@ function createWebWidget<T>(question: Question<T>): WebWidget<T> {
   if (isWebQuestion(question)) {
     return question;
   } else {
-    const input = document.createElement('input');
-    const id = createUniqueId();
-    input.setAttribute('type', 'text');
-    input.setAttribute('id', id);
-    input.className = 'input';
-    const control = document.createElement('div');
-    control.className = 'control';
-    control.appendChild(input);
+    const input = makeInput('text');
+    const control = wrapInControlDiv(input);
     return {
       getElement: () => control,
       processElement: () => question.processResponse(input.value),
-      labelForId: id
+      labelForId: input.id
     };
   }
 }
@@ -166,6 +161,10 @@ export class WebInterviewIO extends InterviewIO {
 
   createYesNoQuestion(text: string): Question<boolean> {
     return new WebYesNoQuestion(text);
+  }
+
+  createDateQuestion(text: string): Question<Date> {
+    return new WebDateQuestion(text);
   }
 
   close() {
