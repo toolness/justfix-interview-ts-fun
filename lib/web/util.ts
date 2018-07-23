@@ -1,9 +1,14 @@
-export function getElement(selector: string, parent: ParentNode = document): Element {
-  const node = parent.querySelector(selector);
+export function getElement<K extends keyof HTMLElementTagNameMap>(
+  tagName: K,
+  selector: string,
+  parent: ParentNode = document
+): HTMLElementTagNameMap[K] {
+  const finalSelector = `${tagName}${selector}`;
+  const node = parent.querySelector(finalSelector);
   if (!node) {
-    throw new Error(`Couldn't find any elements matching "${selector}"`);
+    throw new Error(`Couldn't find any elements matching "${finalSelector}"`);
   }
-  return node;
+  return node as HTMLElementTagNameMap[K];
 }
 
 let idCounter = 0;

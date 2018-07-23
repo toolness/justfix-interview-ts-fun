@@ -20,10 +20,10 @@ interface RestartOptions {
 }
 
 function restart(options: RestartOptions = { pushState: true }) {
-  const resetButton = getElement('button#reset') as HTMLButtonElement;
-  const daysInput = getElement('input#days') as HTMLInputElement;
-  const mainDiv = getElement('div#main') as HTMLDivElement;
-  const dateSpan = getElement('span#date') as HTMLSpanElement;
+  const resetButton = getElement('button', '#reset');
+  const daysInput = getElement('input', '#days');
+  const mainDiv = getElement('div', '#main');
+  const dateSpan = getElement('span', '#date');
 
   mainDiv.innerHTML = '';
 
