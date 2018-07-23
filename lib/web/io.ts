@@ -48,6 +48,7 @@ export class QuestionInput<T> {
     this.container = document.createElement('div');
 
     const p = document.createElement('p');
+    p.className = 'jf-question';
     p.appendChild(document.createTextNode(question.text));
     this.container.appendChild(p);
 
