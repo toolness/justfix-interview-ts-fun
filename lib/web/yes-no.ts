@@ -12,6 +12,7 @@ export class WebYesNoQuestion extends YesNoQuestion implements WebWidget<boolean
   constructor(readonly text: string) {
     super(text);
     this.div = document.createElement('div');
+    this.div.className = 'control';
     this.inputName = createUniqueId();
     this.yesInput = makeRadio(this.div, this.inputName, 'Yes').input;
     this.noInput = makeRadio(this.div, this.inputName, 'No').input;

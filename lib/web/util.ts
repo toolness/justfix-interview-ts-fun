@@ -18,17 +18,15 @@ export function makeRadio(parent: HTMLElement, inputName: string, labelText: str
   input: HTMLInputElement
 } {
   const input = document.createElement('input');
-  const id = createUniqueId();
   input.setAttribute('type', 'radio');
   input.setAttribute('name', inputName);
   input.setAttribute('value', labelText);
-  input.setAttribute('id', id);
 
   const label = document.createElement('label');
-  label.setAttribute('for', id);
-  label.textContent = labelText;
+  label.className = 'radio';
+  label.appendChild(input);
+  label.appendChild(document.createTextNode(labelText));
 
-  parent.appendChild(input);
   parent.appendChild(label);
 
   return { label, input };

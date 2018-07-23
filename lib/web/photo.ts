@@ -1,15 +1,19 @@
 import { Question, ValidationError } from "../question";
 import { Photo } from "../util";
 import { WebWidget } from "./io";
+import { createUniqueId } from "./util";
 
 export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo> {
   input: HTMLInputElement;
+  labelForId: string;
 
   constructor(readonly text: string) {
     super();
     this.text = text;
     this.input = document.createElement('input');
     this.input.setAttribute('type', 'file');
+    this.input.id = createUniqueId();
+    this.labelForId = this.input.id;
   }
 
   processResponse(response: string): Promise<Photo|ValidationError> {

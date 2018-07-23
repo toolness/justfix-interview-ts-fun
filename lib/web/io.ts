@@ -3,10 +3,12 @@ import { Question, ValidationError } from '../question';
 import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
+import { createUniqueId } from './util';
 
 export interface WebWidget<T> {
   getElement: () => Element;
   processElement: () => Promise<T|ValidationError>;
+  labelForId?: string;
 }
 
 type WebQuestion<T> = WebWidget<T> & Question<T>;
@@ -20,10 +22,17 @@ function createWebWidget<T>(question: Question<T>): WebWidget<T> {
     return question;
   } else {
     const input = document.createElement('input');
+    const id = createUniqueId();
     input.setAttribute('type', 'text');
+    input.setAttribute('id', id);
+    input.className = 'input';
+    const control = document.createElement('div');
+    control.className = 'control';
+    control.appendChild(input);
     return {
-      getElement: () => input,
-      processElement: () => question.processResponse(input.value)
+      getElement: () => control,
+      processElement: () => question.processResponse(input.value),
+      labelForId: id
     };
   }
 }
@@ -41,25 +50,30 @@ export type QuestionInputsFor<T> = {
 export class QuestionInput<T> {
   container: HTMLDivElement;
   widget: WebWidget<T>;
-  error: HTMLDivElement|null;
+  error: HTMLParagraphElement|null;
 
   constructor(readonly question: Question<T>) {
     this.question = question;
     this.container = document.createElement('div');
+    this.container.className = "field";
 
-    const p = document.createElement('p');
-    p.className = 'jf-question';
-    p.appendChild(document.createTextNode(question.text));
-    this.container.appendChild(p);
+    const label = document.createElement('label');
+    label.className = 'jf-question label';
+    label.appendChild(document.createTextNode(question.text));
+    this.container.appendChild(label);
 
     this.widget = createWebWidget(question);
     this.container.appendChild(this.widget.getElement());
+    if (this.widget.labelForId) {
+      label.setAttribute('for', this.widget.labelForId);
+    }
     this.error = null;
   }
 
   showError(message: string) {
     if (!this.error) {
-      this.error = document.createElement('div');
+      this.error = document.createElement('p');
+      this.error.className = "help is-danger";
       this.container.appendChild(this.error);
     }
     this.error.innerHTML = '';
@@ -105,8 +119,10 @@ export class WebInterviewIO extends InterviewIO {
       form.appendChild(qi.container);
     }
 
-    const submit = document.createElement('input');
+    const submit = document.createElement('button');
     submit.setAttribute('type', 'submit');
+    submit.className = 'button is-primary';
+    submit.textContent = 'Submit';
     form.appendChild(submit);
 
     this.root.appendChild(form);
