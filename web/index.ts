@@ -4,6 +4,7 @@ import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
 import { WebInterviewIO } from '../lib/web/io';
 import { getElement } from '../lib/web/util';
+import { ModalBuilder } from '../lib/web/modal';
 
 interface AppState {
   days: number,
@@ -24,11 +25,12 @@ function restart(options: RestartOptions = { pushState: true }) {
   const daysInput = getElement('input', '#days');
   const mainDiv = getElement('div', '#main');
   const dateSpan = getElement('span', '#date');
+  const modalTemplate = getElement('template', '#modal');
 
   mainDiv.innerHTML = '';
 
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE);
-  const io = new WebInterviewIO(mainDiv);
+  const io = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
 
   if (options.pushState) {
     window.history.pushState(serializer.get(), '', null);

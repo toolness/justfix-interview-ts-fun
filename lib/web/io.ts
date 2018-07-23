@@ -4,7 +4,7 @@ import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
 import { createUniqueId } from './util';
-import { createModal } from './modal';
+import { ModalBuilder } from './modal';
 
 export interface WebWidget<T> {
   getElement: () => Element;
@@ -101,9 +101,10 @@ export class QuestionInput<T> {
 }
 
 export class WebInterviewIO extends InterviewIO {
-  constructor(readonly root: Element) {
+  constructor(readonly root: Element, readonly modalBuilder: ModalBuilder) {
     super();
     this.root = root;
+    this.modalBuilder = modalBuilder;
   }
 
   async ask<T>(question: Question<T>): Promise<T> {
@@ -156,7 +157,7 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   notify(text: string) {
-    createModal(text);
+    this.modalBuilder.createAndOpen(text);
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
