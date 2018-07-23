@@ -5,3 +5,10 @@ export function getElement(selector: string): Element {
   }
   return node;
 }
+
+let idCounter = 0;
+
+export function createUniqueId(): string {
+  idCounter++;
+  return `unique_id_${idCounter}`;
+}
