@@ -1,48 +1,62 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="vendor/bulma.css">
-<style>
-.jf-question {
-  white-space: pre-wrap;
-}
-</style>
-<title>Interview fun</title>
-<section class="section">
-  <div class="container">
-    <h1 class="title">Interview fun</h1>
-    <div class="columns">
-      <div class="column is-three-quarters">
-        <div id="main"></div>
-      </div>
-      <div class="column has-background-grey-lighter">
-        <div class="field">
-          <label class="label" for="days">Days in future:</label>
-          <div class="control">
-            <input class="input" type="number" name="days" id="days" value="0">
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="vendor/bulma.css">
+    <style>
+    .jf-question {
+      white-space: pre-wrap;
+    }
+    </style>
+    <title>Interview fun</title>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <h1 class="title">Interview fun</h1>
+        <div class="columns">
+          <div class="column is-three-quarters">
+            <div id="main"></div>
+          </div>
+          <div class="column has-background-grey-lighter">
+            <div class="field">
+              <label class="label" for="days">Days in future:</label>
+              <div class="control">
+                <input class="input" type="number" name="days" id="days" value="0">
+              </div>
+            </div>
+            <div class="notification">
+              Current simulated date is <span id="date"></span>.
+            </div>
+            <div class="control">
+              <button id="reset" class="button">Reset interview</button>
+            </div>
           </div>
         </div>
-        <div class="notification">
-          Current simulated date is <span id="date"></span>.
-        </div>
-        <div class="control">
-          <button id="reset" class="button">Reset interview</button>
-        </div>
       </div>
-    </div>
-  </div>
-</section>
-<template id="modal">
-  <div class="modal is-active">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-      <div class="box">
-        <div data-modal-content></div>
-        <br>
-        <button class="button is-primary">Ok</button>
+    </section>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          For more information about this experiment, see
+          the <a href="https://github.com/toolness/justfix-interview-ts-fun">GitHub repository</a>.
+        </p>
       </div>
-    </div>
-    <button class="modal-close is-large" aria-label="close"></button>
-  </div>
-</template>
-<script src="bundle.js"></script>
+    </footer>
+    <template id="modal">
+      <div class="modal is-active">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+          <div class="box">
+            <div data-modal-content></div>
+            <br>
+            <button class="button is-primary">Ok</button>
+          </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close"></button>
+      </div>
+    </template>
+    <script src="bundle.js"></script>
+  </body>
+</html>
