@@ -7,6 +7,7 @@ import { makeInput, wrapInControlDiv, makeElement } from './util';
 import { ModalBuilder } from './modal';
 import { WebDateQuestion } from './date';
 import { WebMultiChoiceQuestion } from './multi-choice';
+import makeThrobber from './throbber';
 
 /**
  * A WebWidget is an additional interface that can be implemented on
@@ -206,10 +207,14 @@ export class WebInterviewIO extends InterviewIO {
     this.modalBuilder.createAndOpen(text);
   }
 
-  setStatus(text: string) {
+  setStatus(text: string, options: { showThrobber?: boolean } = { showThrobber: true }) {
     this.ensureRoot();
     this.statusDiv.textContent = text;
     if (text) {
+      if (options.showThrobber) {
+        this.statusDiv.appendChild(document.createTextNode(' '));
+        this.statusDiv.appendChild(makeThrobber());
+      }
       this.emit('title', text);
     }
   }

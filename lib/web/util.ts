@@ -55,6 +55,8 @@ interface MakeElementOptions<T extends HTMLElement> {
   children?: Element[],
   /** The element's text content. */
   textContent?: string,
+  /** The element's inner HTML. */
+  innerHTML?: string,
 }
 
 /**
@@ -85,6 +87,9 @@ export function makeElement<K extends keyof HTMLElementTagNameMap>(
 
   if (options.textContent) {
     el.textContent = options.textContent;
+  }
+  if (options.innerHTML) {
+    el.innerHTML = options.innerHTML;
   }
   if (options.appendTo) {
     options.appendTo.appendChild(el);

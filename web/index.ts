@@ -90,7 +90,7 @@ function restart(options: RestartOptions = { pushState: true }) {
     const status = followupCount ?
       `No more questions for now, but ${followupCount} followup(s) remain.` :
       `Interview complete, no more followups to process.`;
-    myIo.setStatus(status);
+    myIo.setStatus(status, { showThrobber: false });
   });
 }
 

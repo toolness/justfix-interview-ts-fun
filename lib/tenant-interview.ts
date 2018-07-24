@@ -116,7 +116,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (tenant.rentalHistory && tenant.rentalHistory.status === 'accepted') {
       // TODO: Actually request rental history.
       this.io.setStatus('Requesting your rental history...');
-      await sleep(1000);
+      await sleep(3000);
 
       this.io.notify(
         `Rental history requested! We'll ask if you've received it in ` +
