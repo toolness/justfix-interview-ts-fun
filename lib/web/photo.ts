@@ -1,7 +1,7 @@
 import { Question, ValidationError } from "../question";
 import { Photo } from "../util";
 import { WebWidget } from "./io";
-import { makeInput } from "./util";
+import { makeInput, makeElement } from "./util";
 
 export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo> {
   input: HTMLInputElement;
@@ -10,7 +10,7 @@ export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo
   constructor(readonly text: string) {
     super();
     this.text = text;
-    this.input = makeInput('file');
+    this.input = makeElement('input', { type: 'file' });
     this.labelForId = this.input.id;
   }
 

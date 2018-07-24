@@ -3,7 +3,7 @@ import { Question, ValidationError } from '../question';
 import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
-import { createUniqueId, makeInput, wrapInControlDiv } from './util';
+import { makeInput, wrapInControlDiv, makeElement } from './util';
 import { ModalBuilder } from './modal';
 import { WebDateQuestion } from './date';
 
@@ -81,13 +81,13 @@ export class QuestionInput<T> {
 
   constructor(readonly question: Question<T>) {
     this.question = question;
-    this.container = document.createElement('div');
-    this.container.className = "field";
+    this.container = makeElement('div', { classes: ['field'] });
 
-    const label = document.createElement('label');
-    label.className = 'jf-question label';
-    label.appendChild(document.createTextNode(question.text));
-    this.container.appendChild(label);
+    const label = makeElement('label', {
+      classes: ['jf-question', 'label'],
+      textContent: question.text,
+      appendTo: this.container,
+    });
 
     this.widget = createWebWidget(question);
     this.container.appendChild(this.widget.getElement());
@@ -99,12 +99,12 @@ export class QuestionInput<T> {
 
   showError(message: string) {
     if (!this.error) {
-      this.error = document.createElement('p');
-      this.error.className = "help is-danger";
-      this.container.appendChild(this.error);
+      this.error = makeElement('p', {
+        classes: ['help', 'is-danger'],
+        appendTo: this.container
+      });
     }
-    this.error.innerHTML = '';
-    this.error.appendChild(document.createTextNode(message));
+    this.error.textContent = message;
   }
 
   hideError() {
@@ -147,11 +147,12 @@ export class WebInterviewIO extends InterviewIO {
       form.appendChild(qi.container);
     }
 
-    const submit = document.createElement('button');
-    submit.setAttribute('type', 'submit');
-    submit.className = 'button is-primary';
-    submit.textContent = 'Submit';
-    form.appendChild(submit);
+    const submit = makeElement('button', {
+      type: 'submit',
+      classes: ['button', 'is-primary'],
+      textContent: 'Submit',
+      appendTo: form,
+    });
 
     this.root.appendChild(form);
 

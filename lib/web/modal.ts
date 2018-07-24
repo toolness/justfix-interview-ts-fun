@@ -1,4 +1,4 @@
-import { getElement } from "./util";
+import { getElement, makeElement } from "./util";
 import { EventEmitter } from "events";
 
 export class ModalBuilder {
@@ -73,8 +73,8 @@ class Modal extends EventEmitter {
   }
 
   addText(text: string) {
-    this.contentEl.appendChild(document.createElement('br'));
-    this.contentEl.appendChild(document.createElement('br'));
+    makeElement('br', { appendTo: this.contentEl });
+    makeElement('br', { appendTo: this.contentEl });
     this.contentEl.appendChild(document.createTextNode(text));
   }
 

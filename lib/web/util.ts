@@ -1,3 +1,10 @@
+/**
+ * Find an element.
+ * 
+ * @param tagName The name of the element's HTML tag.
+ * @param selector The selector for the element, not including its HTML tag.
+ * @param parent The parent node to search within.
+ */
 export function getElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   selector: string,
@@ -18,33 +25,117 @@ export function createUniqueId(): string {
   return `unique_id_${idCounter}`;
 }
 
+/** This defines all the valid CSS classes in our project. */
+type CssClassName =
+  // Bulma classes.
+  'control' |
+  'field' |
+  'label' |
+  'help' |
+  'button' |
+  'radio' |
+  'input' |
+  'is-danger' |
+  'is-primary' |
+  // Custom JustFix classes.
+  'jf-question';
+
+interface MakeElementOptions<T extends HTMLElement> {
+  /** The element's classes (corresponds to the "class" attribute). */
+  classes?: CssClassName[],
+  /** The input element's type. */
+  type?: T extends HTMLInputElement | HTMLButtonElement ? string : never,
+  /** The input element's name. */
+  name?: T extends HTMLInputElement ? string : never,
+  /** The input element's value. */
+  value?: T extends HTMLInputElement ? string : never,
+  /** Optional parent element to append the newly-created element to. */
+  appendTo?: Element,
+  /** Optional child elements to append to the newly-created element. */
+  children?: Element[],
+  /** The element's text content. */
+  textContent?: string,
+}
+
+/**
+ * Create an HTML element.
+ * 
+ * If the element is an <input>, automatically assign a unique ID to it.
+ * 
+ * @param tagName The name of the element's HTML tag.
+ * @param options Options for the element.
+ */
+export function makeElement<K extends keyof HTMLElementTagNameMap>(
+  tagName: K,
+  options: MakeElementOptions<HTMLElementTagNameMap[K]>
+): HTMLElementTagNameMap[K] {
+  const el = document.createElement(tagName);
+
+  if (options.classes) {
+    options.classes.forEach(className => el.classList.add(className));
+  }
+  if (el instanceof HTMLInputElement || el instanceof HTMLButtonElement) {
+    el.type = options.type || '';
+  }
+  if (el instanceof HTMLInputElement) {
+    el.name = options.name || '';
+    el.value = options.value || '';
+    el.id = createUniqueId();
+  }
+
+  if (options.textContent) {
+    el.textContent = options.textContent;
+  }
+  if (options.appendTo) {
+    options.appendTo.appendChild(el);
+  }
+  if (options.children) {
+    options.children.forEach(child => el.appendChild(child));
+  }
+
+  return el;
+}
+
+/**
+ * Create an <input> element with a unique id.
+ * 
+ * @param type The value of the input's "type" attribute.
+ */
 export function makeInput(type: string): HTMLInputElement {
-  const input = document.createElement('input');
-  input.type = type;
-  input.id = createUniqueId();
-  input.className = 'input';
-  return input;
+  return makeElement('input', { type, classes: ['input'] });
 }
 
+/**
+ * Wrap the given element in a <div class="control">.
+ * 
+ * @param el The element to wrap.
+ */
 export function wrapInControlDiv(el: Element): HTMLDivElement {
-  const control = document.createElement('div');
-  control.className = 'control';
-  control.appendChild(el);
-  return control;
+  return makeElement('div', {
+    classes: ['control'],
+    children: [el],
+  });
 }
 
+/**
+ * Create an <input type="radio"> wrapped in a <label>.
+ * 
+ * @param parent The parent node to append the radio to.
+ * @param inputName The "name" attribute of the radio.
+ * @param labelText The text of the radio's label.
+ */
 export function makeRadio(parent: HTMLElement, inputName: string, labelText: string): {
   label: HTMLLabelElement,
   input: HTMLInputElement
 } {
-  const input = document.createElement('input');
-  input.setAttribute('type', 'radio');
-  input.setAttribute('name', inputName);
-  input.setAttribute('value', labelText);
+  const label = makeElement('label', { classes: ['radio'] });
+  const input = makeElement('input', {
+    type: 'radio',
+    name: inputName,
+    value: labelText,
+    appendTo: label
+  });
 
-  const label = document.createElement('label');
-  label.className = 'radio';
-  label.appendChild(input);
   label.appendChild(document.createTextNode(labelText));
 
   parent.appendChild(label);

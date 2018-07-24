@@ -1,6 +1,6 @@
 import { ValidationError, YesNoQuestion } from "../question";
 import { WebWidget } from "./io";
-import { createUniqueId, makeRadio } from "./util";
+import { createUniqueId, makeRadio, makeElement } from "./util";
 
 
 export class WebYesNoQuestion extends YesNoQuestion implements WebWidget<boolean> {
@@ -11,8 +11,7 @@ export class WebYesNoQuestion extends YesNoQuestion implements WebWidget<boolean
 
   constructor(readonly text: string) {
     super(text);
-    this.div = document.createElement('div');
-    this.div.className = 'control';
+    this.div = makeElement('div', { classes: ['control'] });
     this.inputName = createUniqueId();
     this.yesInput = makeRadio(this.div, this.inputName, 'Yes').input;
     this.noInput = makeRadio(this.div, this.inputName, 'No').input;
