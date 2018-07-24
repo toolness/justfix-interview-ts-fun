@@ -35,7 +35,8 @@ function restart(options: RestartOptions = { pushState: true }) {
   }
 
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE);
-  io = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
+  const myIo = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
+  io = myIo;
 
   if (options.pushState) {
     window.history.pushState(serializer.get(), '', null);
@@ -80,7 +81,13 @@ function restart(options: RestartOptions = { pushState: true }) {
     window.history.pushState(serializer.get(), '', null);
   });
 
-  interview.execute(serializer.get().tenant);
+  interview.execute(serializer.get().tenant).then((tenant) => {
+    const followupCount = interview.getFollowUps(tenant).length;
+    const status = followupCount ?
+      `No more questions for now, but ${followupCount} followup(s) remain.` :
+      `Interview complete, no more followups to process.`;
+    myIo.setStatus(status);
+  });
 }
 
 window.addEventListener('load', () => {

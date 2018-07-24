@@ -152,8 +152,16 @@ export class WebInterviewIO extends InterviewIO {
   async askMany<T>(questions: QuestionsFor<T>): Promise<T> {
     const form = document.createElement('form');
     const questionInputs = {} as QuestionInputsFor<T>;
+    let foundFirstQuestion = false;
+
+    this.ensureRoot().appendChild(form);
+    this.setStatus('');
 
     for (let key in questions) {
+      if (!foundFirstQuestion) {
+        foundFirstQuestion = true;
+        document.title = questions[key].text;
+      }
       const qi = new QuestionInput(questions[key]);
       questionInputs[key] = qi;
       form.appendChild(qi.container);
@@ -165,9 +173,6 @@ export class WebInterviewIO extends InterviewIO {
       textContent: 'Submit',
       appendTo: form,
     });
-
-    this.setStatus('');
-    this.ensureRoot().appendChild(form);
 
     const getResponses = async (): Promise<T|null> => {
       const responses = {} as T;
@@ -203,6 +208,7 @@ export class WebInterviewIO extends InterviewIO {
 
   setStatus(text: string) {
     this.statusDiv.textContent = text;
+    document.title = text;
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
