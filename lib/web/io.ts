@@ -1,11 +1,12 @@
 import { InterviewIO, QuestionsFor } from '../interview-io';
-import { Question, ValidationError } from '../question';
+import { Question, ValidationError, MultiChoiceAnswer } from '../question';
 import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
 import { makeInput, wrapInControlDiv, makeElement } from './util';
 import { ModalBuilder } from './modal';
 import { WebDateQuestion } from './date';
+import { WebMultiChoiceQuestion } from './multi-choice';
 
 /**
  * A WebWidget is an additional interface that can be implemented on
@@ -197,6 +198,10 @@ export class WebInterviewIO extends InterviewIO {
 
   createDateQuestion(text: string): Question<Date> {
     return new WebDateQuestion(text);
+  }
+
+  createMultiChoiceQuestion<T>(text: string, answers: MultiChoiceAnswer<T>[]) {
+    return new WebMultiChoiceQuestion(text, answers);
   }
 
   close() {

@@ -136,7 +136,7 @@ export function makeRadio(parent: HTMLElement, inputName: string, labelText: str
     appendTo: label
   });
 
-  label.appendChild(document.createTextNode(labelText));
+  label.appendChild(document.createTextNode(` ${labelText}`));
 
   parent.appendChild(label);
 
