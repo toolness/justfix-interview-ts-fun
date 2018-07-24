@@ -1,4 +1,4 @@
-import { addDays } from '../lib/util';
+import { DateString } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
@@ -8,13 +8,13 @@ import { ModalBuilder } from '../lib/web/modal';
 import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 
 interface AppState {
-  days: number,
+  date: DateString,
   tenant: Tenant,
   recording: RecordedAction[],
 }
 
 const INITIAL_APP_STATE: AppState = {
-  days: 0,
+  date: new Date(),
   tenant: {},
   recording: [],
 };
@@ -27,9 +27,8 @@ let io: WebInterviewIO|null = null;
 
 function restart(options: RestartOptions = { pushState: true }) {
   const resetButton = getElement('button', '#reset');
-  const daysInput = getElement('input', '#days');
+  const dateInput = getElement('input', '#date');
   const mainDiv = getElement('div', '#main');
-  const dateSpan = getElement('span', '#date');
   const modalTemplate = getElement('template', '#modal');
 
   if (io) {
@@ -57,23 +56,22 @@ function restart(options: RestartOptions = { pushState: true }) {
   const recordableIo = new RecordableInterviewIO(io, serializer.get().recording);
   const interview = new TenantInterview({
     io: recordableIo,
-    now: addDays(new Date(), serializer.get().days)
+    now: new Date(serializer.get().date),
   });
 
-  dateSpan.textContent = interview.now.toDateString();
-  daysInput.value = serializer.get().days.toString();
+  dateInput.valueAsDate = interview.now;
 
   resetButton.onclick = () => {
     serializer.set(INITIAL_APP_STATE);
     restart();
   };
 
-  daysInput.onchange = (e) => {
+  dateInput.onchange = (e) => {
     e.preventDefault();
     serializer.set({
       ...serializer.get(),
       recording: [],
-      days: parseInt(daysInput.value)
+      date: dateInput.valueAsDate
     });
     restart();
   };
