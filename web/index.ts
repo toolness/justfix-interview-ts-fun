@@ -40,6 +40,14 @@ function restart(options: RestartOptions = { pushState: true }) {
   const myIo = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
   io = myIo;
 
+  // We want to bind this reset button as early as possible, so that if the
+  // serializer state is broken (e.g. because the schema changed recently),
+  // it's always possible to reset.
+  resetButton.onclick = () => {
+    serializer.set(INITIAL_APP_STATE);
+    restart();
+  };
+
   if (options.pushState) {
     window.history.pushState(serializer.get(), '', null);
   } else {
@@ -60,11 +68,6 @@ function restart(options: RestartOptions = { pushState: true }) {
   });
 
   dateInput.valueAsDate = interview.now;
-
-  resetButton.onclick = () => {
-    serializer.set(INITIAL_APP_STATE);
-    restart();
-  };
 
   dateInput.onchange = (e) => {
     e.preventDefault();
