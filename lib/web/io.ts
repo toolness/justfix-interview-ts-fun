@@ -128,10 +128,21 @@ export class QuestionInput<T> {
 }
 
 export class WebInterviewIO extends InterviewIO {
-  constructor(readonly root: Element, readonly modalBuilder: ModalBuilder) {
+  root: Element|null;
+  statusDiv: HTMLDivElement;
+
+  constructor(root: Element, readonly modalBuilder: ModalBuilder) {
     super();
     this.root = root;
     this.modalBuilder = modalBuilder;
+    this.statusDiv = makeElement('div', { appendTo: root });
+  }
+
+  ensureRoot(): Element {
+    if (!this.root) {
+      throw new Error(`${this.constructor.name} was shut down`);
+    }
+    return this.root;
   }
 
   async ask<T>(question: Question<T>): Promise<T> {
@@ -155,7 +166,8 @@ export class WebInterviewIO extends InterviewIO {
       appendTo: form,
     });
 
-    this.root.appendChild(form);
+    this.setStatus('');
+    this.ensureRoot().appendChild(form);
 
     const getResponses = async (): Promise<T|null> => {
       const responses = {} as T;
@@ -176,7 +188,7 @@ export class WebInterviewIO extends InterviewIO {
         e.preventDefault();
         getResponses().then(responses => {
           if (responses) {
-            this.root.removeChild(form);
+            this.ensureRoot().removeChild(form);
             return resolve(responses);
           }
         }).catch(reject);
@@ -185,7 +197,12 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   notify(text: string) {
+    this.setStatus('');
     this.modalBuilder.createAndOpen(text);
+  }
+
+  setStatus(text: string) {
+    this.statusDiv.textContent = text;
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
@@ -205,7 +222,8 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   close() {
-    this.root.innerHTML = '';
+    this.ensureRoot().innerHTML = '';
+    this.root = null;
     this.modalBuilder.shutdown();
   }
 }

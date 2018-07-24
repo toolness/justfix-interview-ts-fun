@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 
 export class ModalBuilder {
   modal: Modal|null = null;
+  isShutDown: boolean = false;
 
   constructor(readonly template: HTMLTemplateElement) {
     this.template = template;
@@ -19,6 +20,9 @@ export class ModalBuilder {
    * @param text The text to display in the modal.
    */
   createAndOpen(text: string) {
+    if (this.isShutDown) {
+      throw new Error(`${this.constructor.name} is shut down`);
+    }
     if (this.modal) {
       this.modal.addText(text);
     } else {
@@ -34,6 +38,7 @@ export class ModalBuilder {
     if (this.modal) {
       this.modal.close();
     }
+    this.isShutDown = true;
   }
 }
 

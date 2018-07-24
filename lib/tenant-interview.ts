@@ -8,6 +8,7 @@ import {
 import { Interview, FollowUp } from './interview';
 
 import { addDays } from './util';
+import { sleep } from './web/util';
 
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
 
@@ -113,7 +114,10 @@ export class TenantInterview extends Interview<Tenant> {
 
   async runNextTask(tenant: Tenant): Promise<Tenant> {
     if (tenant.rentalHistory && tenant.rentalHistory.status === 'accepted') {
-      // TODO: Request rental history.
+      // TODO: Actually request rental history.
+      this.io.setStatus('Requesting your rental history...');
+      await sleep(1000);
+
       this.io.notify(
         `Rental history requested! We'll ask if you've received it in ` +
         `${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`

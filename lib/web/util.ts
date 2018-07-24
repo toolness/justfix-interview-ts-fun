@@ -142,3 +142,9 @@ export function makeRadio(parent: HTMLElement, inputName: string, labelText: str
 
   return { label, input };
 }
+
+export function sleep(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}

@@ -48,6 +48,13 @@ export abstract class InterviewIO {
   abstract notify(text: string): void;
 
   /**
+   * Set the current status, so the user knows what is going on
+   * if there are any delays.
+   */
+  setStatus(text: string): void {
+  }
+
+  /**
    * Create a question that asks for a photo.
    */
   abstract createPhotoQuestion(text: string): Question<Photo>;
