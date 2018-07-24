@@ -74,6 +74,10 @@ export class ReadlineInterviewIO extends InterviewIO {
     this.output.write(`${text}\n`);
   }
 
+  setStatus(text: string) {
+    this.output.write(`${text}\n`);
+  }
+
   /** Close the underlying ReadLine object. */
   close() {
     this.rl.close();
