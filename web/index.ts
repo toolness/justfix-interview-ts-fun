@@ -84,12 +84,16 @@ function restart(options: RestartOptions = { pushState: true }) {
       const state = serializer.get();
       const recording = recordableIo.newRecording;
       if (recording.length > state.recording.length) {
+        // The interview contains multiple question steps before
+        // returning a new state. Remember what the user has
+        // answered so far, so that they can still easily
+        // navigate between the question steps using their
+        // browser's back/forward buttons.
         serializer.set({
           ...state,
           recording,
         });
         window.history.pushState(serializer.get(), '', null);
-        console.log('updated serializer state:', JSON.stringify(recording));
       }
     }
   });
