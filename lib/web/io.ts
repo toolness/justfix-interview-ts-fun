@@ -57,6 +57,7 @@ function createWebWidget<T>(question: Question<T>): WebWidget<T> {
     return question;
   } else {
     const input = makeInput('text');
+    input.name = question.text;
     const control = wrapInControlDiv(input);
     return {
       getElement: () => control,
