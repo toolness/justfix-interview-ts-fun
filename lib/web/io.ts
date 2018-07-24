@@ -3,7 +3,7 @@ import { Question, ValidationError, MultiChoiceAnswer } from '../question';
 import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
 import { WebYesNoQuestion } from './yes-no';
-import { makeInput, wrapInControlDiv, makeElement } from './util';
+import { wrapInControlDiv, makeElement } from './util';
 import { ModalBuilder } from './modal';
 import { WebDateQuestion } from './date';
 import { WebMultiChoiceQuestion } from './multi-choice';
@@ -56,8 +56,11 @@ function createWebWidget<T>(question: Question<T>): WebWidget<T> {
   if (isWebQuestion(question)) {
     return question;
   } else {
-    const input = makeInput('text');
-    input.name = question.text;
+    const input = makeElement('input', {
+      type: 'text',
+      name: question.text,
+      classes: ['input'],
+    });
     const control = wrapInControlDiv(input);
     return {
       getElement: () => control,

@@ -107,15 +107,6 @@ export function makeElement<K extends keyof HTMLElementTagNameMap>(
 }
 
 /**
- * Create an <input> element with a unique id.
- * 
- * @param type The value of the input's "type" attribute.
- */
-export function makeInput(type: string): HTMLInputElement {
-  return makeElement('input', { type, classes: ['input'] });
-}
-
-/**
  * Wrap the given element in a <div class="control">.
  * 
  * @param el The element to wrap.

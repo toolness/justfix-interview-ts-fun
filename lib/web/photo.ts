@@ -1,7 +1,7 @@
 import { Question, ValidationError } from "../question";
 import { Photo } from "../util";
 import { WebWidget } from "./io";
-import { makeInput, makeElement } from "./util";
+import { makeElement } from "./util";
 
 export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo> {
   input: HTMLInputElement;

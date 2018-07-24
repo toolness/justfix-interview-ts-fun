@@ -1,6 +1,6 @@
 import { DateQuestion, ValidationError } from "../question";
 import { WebWidget } from "./io";
-import { makeInput, wrapInControlDiv } from "./util";
+import { wrapInControlDiv, makeElement } from "./util";
 
 export class WebDateQuestion extends DateQuestion implements WebWidget<Date> {
   input: HTMLInputElement;
@@ -8,7 +8,7 @@ export class WebDateQuestion extends DateQuestion implements WebWidget<Date> {
 
   constructor(readonly text: string) {
     super(text);
-    this.input = makeInput('date');
+    this.input = makeElement('input', { type: 'date', classes: ['input'] })
     this.container = wrapInControlDiv(this.input);
   }
 
