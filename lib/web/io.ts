@@ -160,7 +160,7 @@ export class WebInterviewIO extends InterviewIO {
     for (let key in questions) {
       if (!foundFirstQuestion) {
         foundFirstQuestion = true;
-        document.title = questions[key].text;
+        this.emit('title', questions[key].text);
       }
       const qi = new QuestionInput(questions[key]);
       questionInputs[key] = qi;
@@ -207,8 +207,11 @@ export class WebInterviewIO extends InterviewIO {
   }
 
   setStatus(text: string) {
+    this.ensureRoot();
     this.statusDiv.textContent = text;
-    document.title = text;
+    if (text) {
+      this.emit('title', text);
+    }
   }
 
   createPhotoQuestion(text: string): Question<Photo> {
@@ -232,4 +235,9 @@ export class WebInterviewIO extends InterviewIO {
     this.root = null;
     this.modalBuilder.shutdown();
   }
+}
+
+export interface WebInterviewIO {
+  on(event: 'title', listener: (title: string) => void): this;
+  emit(event: 'title', title: string): boolean;
 }

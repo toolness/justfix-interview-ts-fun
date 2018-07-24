@@ -8,6 +8,7 @@ import {
 } from './question';
 
 import { Photo } from './util';
+import { EventEmitter } from 'events';
 
 /**
  * This is a mapped type [1] consisting of properties that consist
@@ -26,7 +27,7 @@ export type QuestionsFor<T> = {
  * This interface has been designed to conduct interviews using multiple
  * communication media (voice, SMS, web, etc).
  */
-export abstract class InterviewIO {
+export abstract class InterviewIO extends EventEmitter {
   /** 
    * Ask a question of the user. If the user provides invalid input, keep asking.
    * @param question The question to ask.

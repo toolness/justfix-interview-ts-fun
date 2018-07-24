@@ -81,6 +81,10 @@ function restart(options: RestartOptions = { pushState: true }) {
     window.history.pushState(serializer.get(), '', null);
   });
 
+  myIo.on('title', title => {
+    document.title = `${title} - ${interview.now.toDateString()}`;
+  });
+
   interview.execute(serializer.get().tenant).then((tenant) => {
     const followupCount = interview.getFollowUps(tenant).length;
     const status = followupCount ?
