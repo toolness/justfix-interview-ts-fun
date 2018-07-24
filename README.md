@@ -24,6 +24,9 @@ use:
 npm run serve
 ```
 
+Your web browser will automatically be opened to the
+appropriate URL.
+
 ## Motivation
 
 This experiment uses a combination of strong typing and
@@ -46,6 +49,15 @@ Instead of constantly running `npm run build` whenever you
 make changes to the source code, you can run `npm run watch` in
 a separate terminal window. This will watch your source files
 for changes and rebuild as needed.
+
+## Deployment
+
+The web version of the prototype can be deployed to the repository's
+`gh-pages` branch by running:
+
+```
+npm run deploy
+```
 
 ## Visual Studio Code support
 
