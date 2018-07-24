@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "schema": "typescript-json-schema tsconfig.json Tenant > tenant.schema.json",
-    "build": "tsc",
+    "build": "tsc && webpack",
     "watch": "tsc --watch",
     "start": "node dist/main.js",
     "serve": "webpack-serve --open-path=/ --content=web"
