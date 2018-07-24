@@ -57,6 +57,8 @@ interface MakeElementOptions<T extends HTMLElement> {
   textContent?: string,
   /** The element's inner HTML. */
   innerHTML?: string,
+  /** The element's "tabindex" attribute. */
+  tabIndex?: 0 | -1,
 }
 
 /**
@@ -96,6 +98,9 @@ export function makeElement<K extends keyof HTMLElementTagNameMap>(
   }
   if (options.children) {
     options.children.forEach(child => el.appendChild(child));
+  }
+  if (typeof(options.tabIndex) === 'number') {
+    el.tabIndex = options.tabIndex;
   }
 
   return el;
