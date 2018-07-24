@@ -5,15 +5,18 @@ import { LocalStorageSerializer } from '../lib/web/serializer';
 import { WebInterviewIO } from '../lib/web/io';
 import { getElement } from '../lib/web/util';
 import { ModalBuilder } from '../lib/web/modal';
+import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 
 interface AppState {
   days: number,
   tenant: Tenant,
+  recording: RecordedAction[],
 }
 
 const INITIAL_APP_STATE: AppState = {
   days: 0,
-  tenant: {}
+  tenant: {},
+  recording: [],
 };
 
 interface RestartOptions {
@@ -51,8 +54,9 @@ function restart(options: RestartOptions = { pushState: true }) {
     }
   };
 
+  const recordableIo = new RecordableInterviewIO(io, serializer.get().recording);
   const interview = new TenantInterview({
-    io,
+    io: recordableIo,
     now: addDays(new Date(), serializer.get().days)
   });
 
@@ -68,14 +72,31 @@ function restart(options: RestartOptions = { pushState: true }) {
     e.preventDefault();
     serializer.set({
       ...serializer.get(),
+      recording: [],
       days: parseInt(daysInput.value)
     });
     restart();
   };
 
+  recordableIo.on('begin-recording-action', type => {
+    if (type === 'ask' || type === 'askMany' && io === myIo) {
+      const state = serializer.get();
+      const recording = recordableIo.newRecording;
+      if (recording.length > state.recording.length) {
+        serializer.set({
+          ...state,
+          recording,
+        });
+        window.history.pushState(serializer.get(), '', null);
+        console.log('updated serializer state:', JSON.stringify(recording));
+      }
+    }
+  });
+
   interview.on('change', (_, nextState) => {
     serializer.set({
       ...serializer.get(),
+      recording: recordableIo.resetRecording(),
       tenant: nextState
     });
     window.history.pushState(serializer.get(), '', null);
