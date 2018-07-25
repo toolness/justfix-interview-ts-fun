@@ -80,7 +80,7 @@ function restart(options: RestartOptions = { pushState: true }) {
   };
 
   recordableIo.on('begin-recording-action', type => {
-    if (type === 'ask' || type === 'askMany' && io === myIo) {
+    if ((type === 'ask' || type === 'askMany' || type === 'notify') && io === myIo) {
       const state = serializer.get();
       const recording = recordableIo.newRecording;
       if (recording.length > state.recording.length) {
@@ -111,12 +111,12 @@ function restart(options: RestartOptions = { pushState: true }) {
     document.title = `${title} - ${interview.now.toDateString()}`;
   });
 
-  interview.execute(serializer.get().tenant).then((tenant) => {
+  interview.execute(serializer.get().tenant).then(async (tenant) => {
     const followupCount = interview.getFollowUps(tenant).length;
     const status = followupCount ?
       `No more questions for now, but ${followupCount} followup(s) remain.` :
       `Interview complete, no more followups to process.`;
-    myIo.setStatus(status, { showThrobber: false });
+    await myIo.setStatus(status, { showThrobber: false });
   });
 }
 

@@ -46,13 +46,13 @@ export abstract class InterviewIO extends EventEmitter {
   /**
    * Notify the user with important information.
    */
-  abstract notify(text: string): void;
+  abstract notify(text: string): Promise<void>;
 
   /**
    * Set the current status, so the user knows what is going on
    * if there are any delays.
    */
-  abstract setStatus(text: string): void;
+  abstract setStatus(text: string): Promise<void>;
 
   /**
    * Create a question that asks for a photo.

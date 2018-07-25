@@ -70,11 +70,11 @@ export class ReadlineInterviewIO extends InterviewIO {
     return result;
   }
 
-  notify(text: string) {
+  async notify(text: string) {
     this.output.write(`${text}\n`);
   }
 
-  setStatus(text: string) {
+  async setStatus(text: string) {
     this.output.write(`${text}\n`);
   }
 

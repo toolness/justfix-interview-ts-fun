@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 
 export class ModalBuilder {
   modal: Modal|null = null;
+  modalResolves: { resolve: () => void, reject: (err: Error) => void }[] = [];
   isShutDown: boolean = false;
 
   constructor(readonly template: HTMLTemplateElement) {
@@ -19,26 +20,37 @@ export class ModalBuilder {
    * 
    * @param text The text to display in the modal.
    */
-  createAndOpen(text: string) {
-    if (this.isShutDown) {
-      throw new Error(`${this.constructor.name} is shut down`);
-    }
-    if (this.modal) {
-      this.modal.addText(text);
-    } else {
-      this.modal = this.create(text);
-      this.modal.on('close', () => {
-        this.modal = null;
-      });
-      this.modal.open();
-    }
+  createAndOpen(text: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.isShutDown) {
+        throw new Error(`${this.constructor.name} is shut down`);
+      }
+      this.modalResolves.push({ resolve, reject });
+      if (this.modal) {
+        this.modal.addText(text);
+      } else {
+        this.modal = this.create(text);
+        this.modal.on('close', () => {
+          this.modal = null;
+          if (this.isShutDown) {
+            this.modalResolves.forEach(mr => {
+              mr.reject(new Error(`${this.constructor.name} is shut down`))
+            });
+          } else {
+            this.modalResolves.forEach(mr => mr.resolve());
+          }
+          this.modalResolves = [];
+        });
+        this.modal.open();
+      }
+    });
   }
 
   shutdown() {
+    this.isShutDown = true;
     if (this.modal) {
       this.modal.close();
     }
-    this.isShutDown = true;
   }
 }
 

@@ -39,7 +39,7 @@ export class TenantInterview extends Interview<Tenant> {
     });
 
     if (housingIssues.isFacingEviction) {
-      this.io.notify(
+      await this.io.notify(
         "Since you’re in an eviction, it’s important to try to get legal help right away. " +
         "We’ll point you to a resource that can help you find a lawyer in just a few moments."
       );
@@ -54,7 +54,7 @@ export class TenantInterview extends Interview<Tenant> {
       if (permission) {
         return { ...tenant, rentalHistory: { status: 'accepted' } };
       } else {
-        this.io.notify("Um, we really need to request your rental history to proceed.");
+        await this.io.notify("Um, we really need to request your rental history to proceed.");
       }
     }
   }
@@ -74,7 +74,7 @@ export class TenantInterview extends Interview<Tenant> {
         ...details
       };
     } else {
-      this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);
+      await this.io.notify(`Alas, we will ask again in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`);
       return {
         ...rentalHistory,
         nextReminder: addDays(this.now, RENTAL_HISTORY_FOLLOWUP_DAYS)
@@ -115,10 +115,10 @@ export class TenantInterview extends Interview<Tenant> {
   async runNextTask(tenant: Tenant): Promise<Tenant> {
     if (tenant.rentalHistory && tenant.rentalHistory.status === 'accepted') {
       // TODO: Actually request rental history.
-      this.io.setStatus('Requesting your rental history...');
+      await this.io.setStatus('Requesting your rental history...');
       await sleep(3000);
 
-      this.io.notify(
+      await this.io.notify(
         `Rental history requested! We'll ask if you've received it in ` +
         `${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`
       );

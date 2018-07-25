@@ -51,18 +51,12 @@ export class RecordableInterviewIO extends InterviewIO {
     return this.playbackOrRecord('askMany', () => this.delegate.askMany(questions));
   }
 
-  notify(text: string): void {
-    this.playbackOrRecord('notify', () => {
-      this.delegate.notify(text);
-      return Promise.resolve(null);
-    });
+  notify(text: string) {
+    return this.playbackOrRecord('notify', () => this.delegate.notify(text));
   }
 
-  setStatus(text: string): void {
-    this.playbackOrRecord('setStatus', () => {
-      this.delegate.setStatus(text);
-      return Promise.resolve(null);
-    });
+  setStatus(text: string) {
+    return this.playbackOrRecord('setStatus', () => this.delegate.setStatus(text));
   }
 
   createPhotoQuestion(text: string): Question<Photo> {

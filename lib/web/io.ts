@@ -160,7 +160,7 @@ export class WebInterviewIO extends InterviewIO {
     let foundFirstQuestion = false;
 
     this.ensureRoot().appendChild(form);
-    this.setStatus('');
+    await this.setStatus('');
 
     for (let key in questions) {
       if (!foundFirstQuestion) {
@@ -206,12 +206,13 @@ export class WebInterviewIO extends InterviewIO {
     });
   }
 
-  notify(text: string) {
-    this.setStatus('');
-    this.modalBuilder.createAndOpen(text);
+  async notify(text: string) {
+    await this.setStatus('');
+    this.emit('title', text);
+    await this.modalBuilder.createAndOpen(text);
   }
 
-  setStatus(text: string, options: { showThrobber?: boolean } = { showThrobber: true }) {
+  async setStatus(text: string, options: { showThrobber?: boolean } = { showThrobber: true }) {
     this.ensureRoot();
     this.statusDiv.textContent = text;
     if (text) {
