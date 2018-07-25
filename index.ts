@@ -6,6 +6,7 @@ import { WebInterviewIO } from '../lib/web/io';
 import { getElement } from '../lib/web/util';
 import { ModalBuilder } from '../lib/web/modal';
 import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
+import { IOCancellationError } from '../lib/interview-io';
 
 interface AppState {
   date: DateString,
@@ -80,7 +81,7 @@ function restart(options: RestartOptions = { pushState: true }) {
   };
 
   recordableIo.on('begin-recording-action', type => {
-    if (type === 'ask' || type === 'askMany' && io === myIo) {
+    if ((type === 'ask' || type === 'askMany' || type === 'notify') && io === myIo) {
       const state = serializer.get();
       const recording = recordableIo.newRecording;
       if (recording.length > state.recording.length) {
@@ -111,12 +112,23 @@ function restart(options: RestartOptions = { pushState: true }) {
     document.title = `${title} - ${interview.now.toDateString()}`;
   });
 
-  interview.execute(serializer.get().tenant).then((tenant) => {
+  interview.execute(serializer.get().tenant).then(async (tenant) => {
     const followupCount = interview.getFollowUps(tenant).length;
     const status = followupCount ?
       `No more questions for now, but ${followupCount} followup(s) remain.` :
       `Interview complete, no more followups to process.`;
-    myIo.setStatus(status, { showThrobber: false });
+    await myIo.setStatus(status, { showThrobber: false });
+  }).catch((err) => {
+    if (err instanceof IOCancellationError && myIo !== io) {
+      // The interview was waiting for some kind of user input or timeout
+      // but the user has since navigated away from this interview session,
+      // so this exception is to be expected.
+      console.groupCollapsed(`${err.constructor.name} received, but expected; ignoring it.`);
+      console.log(err);
+      console.groupEnd();
+      return;
+    }
+    throw err;
   });
 }
 
