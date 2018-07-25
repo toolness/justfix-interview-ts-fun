@@ -1,19 +1,22 @@
-import { addDays } from '../lib/util';
+import { DateString } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
 import { WebInterviewIO } from '../lib/web/io';
 import { getElement } from '../lib/web/util';
 import { ModalBuilder } from '../lib/web/modal';
+import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 
 interface AppState {
-  days: number,
+  date: DateString,
   tenant: Tenant,
+  recording: RecordedAction[],
 }
 
 const INITIAL_APP_STATE: AppState = {
-  days: 0,
-  tenant: {}
+  date: new Date(),
+  tenant: {},
+  recording: [],
 };
 
 interface RestartOptions {
@@ -24,9 +27,8 @@ let io: WebInterviewIO|null = null;
 
 function restart(options: RestartOptions = { pushState: true }) {
   const resetButton = getElement('button', '#reset');
-  const daysInput = getElement('input', '#days');
+  const dateInput = getElement('input', '#date');
   const mainDiv = getElement('div', '#main');
-  const dateSpan = getElement('span', '#date');
   const modalTemplate = getElement('template', '#modal');
 
   if (io) {
@@ -37,6 +39,14 @@ function restart(options: RestartOptions = { pushState: true }) {
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE);
   const myIo = new WebInterviewIO(mainDiv, new ModalBuilder(modalTemplate));
   io = myIo;
+
+  // We want to bind this reset button as early as possible, so that if the
+  // serializer state is broken (e.g. because the schema changed recently),
+  // it's always possible to reset.
+  resetButton.onclick = () => {
+    serializer.set(INITIAL_APP_STATE);
+    restart();
+  };
 
   if (options.pushState) {
     window.history.pushState(serializer.get(), '', null);
@@ -51,31 +61,47 @@ function restart(options: RestartOptions = { pushState: true }) {
     }
   };
 
+  const recordableIo = new RecordableInterviewIO(io, serializer.get().recording);
   const interview = new TenantInterview({
-    io,
-    now: addDays(new Date(), serializer.get().days)
+    io: recordableIo,
+    now: new Date(serializer.get().date),
   });
 
-  dateSpan.textContent = interview.now.toDateString();
-  daysInput.value = serializer.get().days.toString();
+  dateInput.valueAsDate = interview.now;
 
-  resetButton.onclick = () => {
-    serializer.set(INITIAL_APP_STATE);
-    restart();
-  };
-
-  daysInput.onchange = (e) => {
+  dateInput.onchange = (e) => {
     e.preventDefault();
     serializer.set({
       ...serializer.get(),
-      days: parseInt(daysInput.value)
+      recording: [],
+      date: dateInput.valueAsDate
     });
     restart();
   };
 
+  recordableIo.on('begin-recording-action', type => {
+    if (type === 'ask' || type === 'askMany' && io === myIo) {
+      const state = serializer.get();
+      const recording = recordableIo.newRecording;
+      if (recording.length > state.recording.length) {
+        // The interview contains multiple question steps before
+        // returning a new state. Remember what the user has
+        // answered so far, so that they can still easily
+        // navigate between the question steps using their
+        // browser's back/forward buttons.
+        serializer.set({
+          ...state,
+          recording,
+        });
+        window.history.pushState(serializer.get(), '', null);
+      }
+    }
+  });
+
   interview.on('change', (_, nextState) => {
     serializer.set({
       ...serializer.get(),
+      recording: recordableIo.resetRecording(),
       tenant: nextState
     });
     window.history.pushState(serializer.get(), '', null);
