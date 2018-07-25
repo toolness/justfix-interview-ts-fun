@@ -14,6 +14,17 @@ export function addDays(date: DateString, days: number): Date {
   return result;
 }
 
+/**
+ * Calculates how many days away the given date is.
+ * 
+ * @param date The date in the future.
+ * @param now The current date.
+ */
+export function getDaysAway(date: DateString, now: DateString): number {
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+  return Math.ceil((new Date(date).getTime() - new Date(now).getTime()) / MS_PER_DAY);
+}
+
 export function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, milliseconds);

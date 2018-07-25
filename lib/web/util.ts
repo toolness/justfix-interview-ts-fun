@@ -35,6 +35,7 @@ type CssClassName =
   'button' |
   'radio' |
   'input' |
+  'panel-block' |
   'is-danger' |
   'is-primary' |
   // Custom JustFix classes.

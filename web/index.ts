@@ -1,12 +1,13 @@
-import { DateString } from '../lib/util';
+import { DateString, getDaysAway } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
 import { WebInterviewIO } from '../lib/web/io';
-import { getElement } from '../lib/web/util';
+import { getElement, makeElement } from '../lib/web/util';
 import { ModalBuilder } from '../lib/web/modal';
 import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 import { IOCancellationError } from '../lib/interview-io';
+import { FollowUp } from '../lib/interview';
 
 interface AppState {
   date: DateString,
@@ -26,11 +27,35 @@ interface RestartOptions {
 
 let io: WebInterviewIO|null = null;
 
+function showFollowUps<S>(nav: HTMLElement, followUps: FollowUp<S>[], now: Date) {
+  nav.querySelectorAll('.panel-block').forEach(el => nav.removeChild(el));
+
+  // We are strictly interested in follow-ups that are not ready for follow-up
+  // right now.
+  followUps = followUps.filter(followUp => now < new Date(followUp.date));
+
+  if (followUps.length === 0) {
+    nav.style.display = 'none';
+  } else {
+    nav.style.display = null;
+    followUps.forEach(followUp => {
+      const days = getDaysAway(followUp.date, now);
+      const daysStr = `${days} ${days === 1 ? ' day' : ' days'}`;
+      makeElement('div', {
+        classes: ['panel-block'],
+        textContent: `${followUp.name} We will follow-up in ${daysStr}.`,
+        appendTo: nav
+      });
+    });
+  }
+}
+
 function restart(options: RestartOptions = { pushState: true }) {
   const resetButton = getElement('button', '#reset');
   const dateInput = getElement('input', '#date');
   const mainDiv = getElement('div', '#main');
   const modalTemplate = getElement('template', '#modal');
+  const followUpsNav = getElement('nav', '#follow-ups');
 
   if (io) {
     io.close();
@@ -60,6 +85,10 @@ function restart(options: RestartOptions = { pushState: true }) {
       serializer.set(event.state);
       restart({ pushState: false });
     }
+  };
+
+  const redrawFollowUps = () => {
+    showFollowUps(followUpsNav, interview.getFollowUps(serializer.get().tenant), interview.now);
   };
 
   const recordableIo = new RecordableInterviewIO(io, serializer.get().recording);
@@ -106,17 +135,16 @@ function restart(options: RestartOptions = { pushState: true }) {
       tenant: nextState
     });
     window.history.pushState(serializer.get(), '', null);
+    redrawFollowUps();
   });
 
   myIo.on('title', title => {
     document.title = `${title} - ${interview.now.toDateString()}`;
   });
 
+  redrawFollowUps();
   interview.execute(serializer.get().tenant).then(async (tenant) => {
-    const followupCount = interview.getFollowUps(tenant).length;
-    const status = followupCount ?
-      `No more questions for now, but ${followupCount} followup(s) remain.` :
-      `Interview complete, no more followups to process.`;
+    const status = "We don't have any questions for you right now.";
     await myIo.setStatus(status, { showThrobber: false });
   }).catch((err) => {
     if (err instanceof IOCancellationError && myIo !== io) {
