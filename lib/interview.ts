@@ -23,8 +23,7 @@ export interface FollowUp<S> {
   date: DateString;
 
   /** 
-   * The name of the follow-up. At the time of this writing, this isn't
-   * actually used anywhere, but eventually it might be.
+   * The name of the follow-up.
    */
   name: string;
 
