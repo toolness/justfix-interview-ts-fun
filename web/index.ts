@@ -43,7 +43,7 @@ function showFollowUps<S>(nav: HTMLElement, followUps: FollowUp<S>[], now: Date)
       const daysStr = `${days} ${days === 1 ? ' day' : ' days'}`;
       makeElement('div', {
         classes: ['panel-block'],
-        textContent: `${followUp.name} We will follow-up in ${daysStr}.`,
+        textContent: `${followUp.name} We'll follow-up in ${daysStr}.`,
         appendTo: nav
       });
     });
