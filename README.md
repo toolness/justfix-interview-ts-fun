@@ -1,6 +1,16 @@
 This is an experiment in creating a medium-independent interview
 logic for the second version of [JustFix.nyc][]'s tenant app.
 
+## Motivation
+
+This experiment uses a combination of strong typing and
+functional programming paradigms to separate the interview
+logic from any specific communication medium--SMS, Web,
+et cetera--and ensure a reliable user experience that can be easily
+tested and iterated upon.
+
+That said, it might also be a terrible idea. We'll see.
+
 ## Quick start
 
 You will need NodeJS 8.x or later.
@@ -29,16 +39,6 @@ You can also pass `--help` for more information.
 The `npm run watch` command also launches a web server, so
 to visit the web front-end, open your browser to
 http://localhost:8080.
-
-## Motivation
-
-This experiment uses a combination of strong typing and
-functional programming paradigms to separate the interview
-logic from any specific communication medium--SMS, Web,
-et cetera--and ensure a reliable user experience that can be easily
-tested and iterated upon.
-
-That said, it might also be a terrible idea. We'll see.
 
 ## Development
 
