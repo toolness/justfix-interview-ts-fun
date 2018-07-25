@@ -25,6 +25,12 @@ export function getDaysAway(date: DateString, now: DateString): number {
   return Math.ceil((new Date(date).getTime() - new Date(now).getTime()) / MS_PER_DAY);
 }
 
+/**
+ * Return a promise that resolves after the given amount of
+ * time has passed.
+ * 
+ * @param milliseconds The number of milliseconds to sleep.
+ */
 export function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, milliseconds);
