@@ -1,4 +1,4 @@
-import { InterviewIO, QuestionsFor } from '../interview-io';
+import { InterviewIO, QuestionsFor, IOCancellationError } from '../interview-io';
 import { Question, ValidationError, MultiChoiceAnswer } from '../question';
 import { Photo } from '../util';
 import { WebPhotoQuestion } from './photo';
@@ -145,7 +145,7 @@ export class WebInterviewIO extends InterviewIO {
 
   ensureRoot(): Element {
     if (!this.root) {
-      throw new Error(`${this.constructor.name} was shut down`);
+      throw new IOCancellationError(this);
     }
     return this.root;
   }

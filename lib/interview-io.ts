@@ -75,3 +75,18 @@ export abstract class InterviewIO extends EventEmitter {
     return new NonBlankQuestion(text);
   }
 }
+
+/**
+ * This Error subclass should be used when any InterviewIO-related
+ * functionality fails because the IO was shutdown (e.g. if the UI
+ * is web-based and the user navigated somewhere else).
+ */
+export class IOCancellationError extends Error {
+  constructor(message: string|Object) {
+    if (typeof(message) === 'object') {
+      super(`${message.constructor.name} has shut down`);
+    } else {
+      super(message);
+    }
+  }
+}

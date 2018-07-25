@@ -1,5 +1,6 @@
 import { getElement, makeElement } from "./util";
 import { EventEmitter } from "events";
+import { IOCancellationError } from "../interview-io";
 
 export class ModalBuilder {
   modal: Modal|null = null;
@@ -23,7 +24,7 @@ export class ModalBuilder {
   createAndOpen(text: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.isShutDown) {
-        throw new Error(`${this.constructor.name} is shut down`);
+        throw new IOCancellationError(this);
       }
       this.modalResolves.push({ resolve, reject });
       if (this.modal) {
@@ -34,7 +35,7 @@ export class ModalBuilder {
           this.modal = null;
           if (this.isShutDown) {
             this.modalResolves.forEach(mr => {
-              mr.reject(new Error(`${this.constructor.name} is shut down`))
+              mr.reject(new IOCancellationError(this));
             });
           } else {
             this.modalResolves.forEach(mr => mr.resolve());
