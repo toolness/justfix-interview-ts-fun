@@ -8,6 +8,7 @@ import { ModalBuilder } from '../lib/web/modal';
 import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 import { IOCancellationError } from '../lib/interview-io';
 import { FollowUp } from '../lib/interview';
+import './boop';
 
 interface AppState {
   date: DateString,
