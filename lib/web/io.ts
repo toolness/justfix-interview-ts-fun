@@ -80,6 +80,11 @@ export type QuestionInputsFor<T> = {
   [P in keyof T]: QuestionInput<T[P]>;
 };
 
+/**
+ * A QuestionInput wraps a Question in an HTML element with an area
+ * for a label, an input field tailored to the type of question
+ * being asked, and an error message area.
+ */
 export class QuestionInput<T> {
   container: HTMLDivElement;
   widget: WebWidget<T>;
@@ -120,6 +125,11 @@ export class QuestionInput<T> {
     }
   }
 
+  /**
+   * Ask for the underlying Question's current answer, if
+   * it has a valid one. If it doesn't, show the error to
+   * the user in the error area and return null.
+   */
   async respond(): Promise<T|null> {
     let response = await this.widget.processElement();
 
@@ -154,6 +164,15 @@ export class WebInterviewIO extends InterviewIO {
     return (await this.askMany({ question })).question;
   }
 
+  /**
+   * This gathers one or more questions to ask and embeds them
+   * in a <form> element. It automatically takes care of
+   * showing validation errors to the user and doesn't return
+   * until all questions have been given a valid answer by
+   * the user.
+   * 
+   * @param questions The questions to ask.
+   */
   async askMany<T>(questions: QuestionsFor<T>): Promise<T> {
     const form = document.createElement('form');
     const questionInputs = {} as QuestionInputsFor<T>;
