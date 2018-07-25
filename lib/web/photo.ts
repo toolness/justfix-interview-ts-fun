@@ -3,6 +3,8 @@ import { Photo } from "../util";
 import { WebWidget } from "./io";
 import { makeElement } from "./util";
 
+const IMG_SIZE = 64;
+
 export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo> {
   input: HTMLInputElement;
   labelForId: string;
@@ -30,21 +32,26 @@ export class WebPhotoQuestion extends Question<Photo> implements WebWidget<Photo
     }
 
     const file = files[0];
-    const reader = new FileReader();
 
-    return new Promise<Photo>((resolve, reject) => {
-      reader.onload = (event) => {
-        if (!event.target) {
-          return reject('event.target is null!');
+    return new Promise<Photo|ValidationError>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const width = IMG_SIZE;
+        const height = IMG_SIZE;
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          return reject('unable to obtain CanvasRenderingContext2D');
         }
-        if (typeof(event.target.result) === 'string' &&
-            /^data:/.test(event.target.result)) {
-          resolve(event.target.result);
-        } else {
-          reject('event.target.result is not a data URI!');
-        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.5));
       };
-      reader.readAsDataURL(file);
+      img.onerror = (e) => {
+        resolve(new ValidationError('That does not appear to be a valid image.'));
+      };
+      img.src = URL.createObjectURL(file);
     });
   }
 }
