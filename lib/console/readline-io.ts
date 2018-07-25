@@ -3,7 +3,9 @@ import * as readline from 'readline';
 import { InterviewIO, QuestionsFor } from '../interview-io';
 import { Question, ValidationError } from '../question';
 import { PhotoQuestion } from './photo';
-import { Photo } from '../util';
+import { Photo, sleep } from '../util';
+
+const NOTIFY_DELAY_MS = 3000;
 
 /** Standard interview i/o that uses readline/stdout. */
 export class ReadlineInterviewIO extends InterviewIO {
@@ -71,7 +73,8 @@ export class ReadlineInterviewIO extends InterviewIO {
   }
 
   async notify(text: string) {
-    this.output.write(`${text}\n`);
+    this.output.write(`\n${text}\n\n`);
+    await sleep(NOTIFY_DELAY_MS);
   }
 
   async setStatus(text: string) {

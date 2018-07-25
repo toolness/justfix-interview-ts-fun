@@ -13,3 +13,9 @@ export function addDays(date: DateString, days: number): Date {
   result.setDate(result.getDate() + days);
   return result;
 }
+
+export function sleep(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}

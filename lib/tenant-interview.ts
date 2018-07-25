@@ -7,8 +7,7 @@ import {
 
 import { Interview, FollowUp } from './interview';
 
-import { addDays } from './util';
-import { sleep } from './web/util';
+import { addDays, sleep } from './util';
 
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
 
