@@ -14,17 +14,21 @@ export type RecordedAction = [IoActionType, any];
  * change after the full sequence is answered.
  */
 export class RecordableInterviewIO extends InterviewIO {
-  readonly newRecording: RecordedAction[];
+  private readonly newRecording: RecordedAction[];
 
   constructor(readonly delegate: InterviewIO, private readonly recording: RecordedAction[] = []) {
     super();
     this.newRecording = recording.slice();
   }
 
+  getRecording(): RecordedAction[] {
+    return this.newRecording.slice();
+  }
+
   resetRecording(): RecordedAction[] {
     this.recording.splice(0);
     this.newRecording.splice(0);
-    return this.newRecording;
+    return this.getRecording();
   }
 
   private async playbackOrRecord<T>(type: IoActionType, record: () => Promise<T>): Promise<T> {

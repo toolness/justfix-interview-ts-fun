@@ -8,6 +8,9 @@ import { ModalBuilder } from '../lib/web/modal';
 import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 import { IOCancellationError } from '../lib/interview-io';
 import { FollowUp } from '../lib/interview';
+import React from 'react';
+import ReactDom from 'react-dom';
+import { InterviewComponent, ICProps } from './interview';
 
 interface AppState {
   date: DateString,
@@ -112,7 +115,7 @@ function restart(options: RestartOptions = { pushState: true }) {
   recordableIo.on('begin-recording-action', type => {
     if ((type === 'ask' || type === 'askMany' || type === 'notify') && io === myIo) {
       const state = serializer.get();
-      const recording = recordableIo.newRecording;
+      const recording = recordableIo.getRecording();
       if (recording.length > state.recording.length) {
         // The interview contains multiple question steps before
         // returning a new state. Remember what the user has
@@ -160,6 +163,23 @@ function restart(options: RestartOptions = { pushState: true }) {
   });
 }
 
-window.addEventListener('load', () => {
-  restart({ pushState: false });
+window.addEventListener('DOMContentLoaded', () => {
+  // restart({ pushState: false });
+
+  const props: ICProps = {
+    modalTemplate: getElement('template', '#modal'),
+    initialState: { tenant: {}, recording: [] },
+    now: new Date(),
+    onStateChange: (state) => {
+      console.log('state change oooo', state);
+    },
+    onTitleChange: (title) => {
+      console.log('title change', title);
+    }
+  };
+
+  ReactDom.render(
+    React.createElement(InterviewComponent, props),
+    getElement('div', '#main')
+  );
 });
