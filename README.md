@@ -7,25 +7,28 @@ You will need NodeJS 8.x or later.
 
 ```
 npm install
-npm run build
-npm start
+npm run watch
 ```
 
-This will run the CLI version of the interview.
+Now you can run either the console or web version of
+the interview.
 
-You can also run `npm start -- --help` for more information.
+### Console front-end
 
-## Web front-end
-
-There's also a web-based version of the interview. To run it,
-use:
+To use the console version of the interview, open
+a separate terminal and run:
 
 ```
-npm run serve
+node console/bundle.js
 ```
 
-Your web browser will automatically be opened to the
-appropriate URL.
+You can also pass `--help` for more information.
+
+### Web front-end
+
+The `npm run watch` command also launches a web server, so
+to visit the web front-end, open your browser to
+http://localhost:8080.
 
 ## Motivation
 
@@ -44,11 +47,6 @@ you may want to familiarize yourself with that before
 changing the source code. It's strongly recommended that
 you install any [TypeScript integration][] available for
 your editor of choice.
-
-Instead of constantly running `npm run build` whenever you
-make changes to the source code, you can run `npm run watch` in
-a separate terminal window. This will watch your source files
-for changes and rebuild as needed.
 
 ## Deployment
 

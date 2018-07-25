@@ -1,11 +1,11 @@
 import minimist from 'minimist';
 import chalk from 'chalk';
 
-import { addDays } from './lib/util';
-import { Tenant } from './lib/tenant';
-import { TenantInterview } from './lib/tenant-interview';
-import { ReadlineInterviewIO } from './lib/console/readline-io';
-import { FileSerializer } from './lib/console/serializer';
+import { addDays } from '../lib/util';
+import { Tenant } from '../lib/tenant';
+import { TenantInterview } from '../lib/tenant-interview';
+import { ReadlineInterviewIO } from '../lib/console/readline-io';
+import { FileSerializer } from '../lib/console/serializer';
 
 const SCRIPT = process.argv[1];
 
@@ -29,7 +29,7 @@ function log(msg: string) {
   console.log(chalk.gray(msg));
 }
 
-if (module.parent === null) {
+if (!module.parent) {
   const argv = minimist(process.argv.slice(2));
   let now = new Date();
 

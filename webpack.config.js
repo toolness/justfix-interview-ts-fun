@@ -1,9 +1,6 @@
 const path = require('path');
 
-module.exports = {
-  entry: './web/index.ts',
-  devtool: 'inline-source-map',
-  mode: 'development',
+const commonOptions = {
   module: {
     rules: [
       {
@@ -16,8 +13,30 @@ module.exports = {
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
+};
+
+const webConfig = {
+  ...commonOptions,
+  target: 'web',
+  entry: './web/index.ts',
+  devtool: 'inline-source-map',
+  mode: 'development',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'web')
   }
 };
+
+const consoleConfig = {
+  ...commonOptions,
+  target: 'node',
+  entry: './console/main.ts',
+  devtool: 'inline-source-map',
+  mode: 'development',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'console')
+  }
+};
+
+module.exports = [ webConfig, consoleConfig ];
