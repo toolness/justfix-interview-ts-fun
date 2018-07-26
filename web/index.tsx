@@ -61,60 +61,87 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
   );
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const modalTemplate = getElement('template', '#modal');
-  const mainSection = getElement('section', '#main');
-  const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
+interface AppProps {
+  modalTemplate: HTMLTemplateElement;
+  serializer: LocalStorageSerializer<SerializableAppState>;
+}
 
-  const handleResetClick = () => {
-    setState(INITIAL_APP_STATE, 'push');
-  };
+interface AppState {
+  serState: SerializableAppState;
+  interview: Interview<Tenant>|null;
+  isInterviewStopped: boolean;
+}
 
-  const handleDateChange = (date: Date) => {
-    setState({
-      ...serializer.get(),
-      date
-    }, 'push');
-  };
+class App extends React.Component<AppProps, AppState> {
+  constructor(props: AppProps) {
+    super(props);
+    this.state = {
+      serState: this.props.serializer.get(),
+      interview: null,
+      isInterviewStopped: true
+    };
+  }
 
-  window.onpopstate = (event) => {
-    if (event.state && event.state.version === INITIAL_APP_STATE.version) {
-      setState(event.state);
-    }
-  };
-
-  function setState(newState: SerializableAppState, historyAction: 'push'|'replace'|null = null) {
-    serializer.set(newState);
+  updateSerState(newState: SerializableAppState, historyAction: 'push'|'replace'|null = null) {
+    this.props.serializer.set(newState);
     if (historyAction === 'push') {
       window.history.pushState(newState, '', null);
     } else if (historyAction === 'replace') {
       window.history.replaceState(newState, '', null);
     }
-    render(newState);
+    this.setState({ serState: newState });
   }
 
-  let isInterviewStopped = true;
-  let interview: Interview<Tenant>|null = null;
+  componentDidMount() {
+    window.onpopstate = (event) => {
+      if (event.state && event.state.version === this.props.serializer.version) {
+        this.updateSerState(event.state);
+      }
+    };  
 
-  function render(appState: SerializableAppState) {
-    const followUps = interview ? interview.getFutureFollowUps(appState.interviewState.s) : [];
+    this.updateSerState(this.props.serializer.get(), 'replace');
+  }
+
+  render() {
+    const {
+      serializer
+    } = this.props;
+
+    const {
+      serState,
+      interview,
+      isInterviewStopped
+     } = this.state;
+
+    const handleResetClick = () => {
+      this.updateSerState(serializer.defaultState, 'push');
+    };
+
+    const handleDateChange = (date: Date) => {
+      this.updateSerState({
+        ...this.state.serState,
+        date
+      }, 'push');
+    };
+
+    const followUps = interview ? interview.getFutureFollowUps(serState.interviewState.s) : [];
     const interviewProps: ICProps<Tenant> = {
-      modalTemplate,
+      modalTemplate: this.props.modalTemplate,
       interviewClass: TenantInterview,
-      initialState: appState.interviewState,
-      now: appState.date,
+      initialState: serState.interviewState,
+      now: serState.date,
       onStart: (newInterview) => {
-        interview = newInterview;
-        isInterviewStopped = false;
-        render(appState);
+        this.setState({
+          interview: newInterview,
+          isInterviewStopped: false
+        });
       },
       onStop: () => {
-        isInterviewStopped = true;
-        render(appState);
+        this.setState({ isInterviewStopped: true });
       },
       onStateChange: (interviewState) => {
-        setState({
-          ...appState,
+        this.updateSerState({
+          ...serState,
           interviewState
         }, 'push');
       },
@@ -123,7 +150,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    ReactDom.render(
+    return (
       <div className="container">
         <h1 className="title">JustFix interview fun</h1>
         <div className="columns">
@@ -133,19 +160,27 @@ window.addEventListener('DOMContentLoaded', () => {
           </div>
           <div className="column">
             {followUps.length ?
-              <FollowUpsPanel followUps={followUps} now={appState.date} /> : null}
+              <FollowUpsPanel followUps={followUps} now={serState.date} /> : null}
             <div className="box has-background-light">
-              <DateField onChange={handleDateChange} value={appState.date}>
+              <DateField onChange={handleDateChange} value={serState.date}>
                 Current simulated date:
               </DateField>
               <Button onClick={handleResetClick}>Reset interview</Button>
             </div>
           </div>
         </div>
-      </div>,
-      mainSection
+      </div>
     );
   }
+}
 
-  setState(serializer.get(), 'replace');
+window.addEventListener('DOMContentLoaded', () => {
+  const modalTemplate = getElement('template', '#modal');
+  const mainSection = getElement('section', '#main');
+  const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
+
+  ReactDom.render(
+    <App modalTemplate={modalTemplate} serializer={serializer} />,
+    mainSection
+  );
 });
