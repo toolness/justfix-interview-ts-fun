@@ -68,26 +68,31 @@ window.addEventListener('DOMContentLoaded', () => {
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
 
   const handleResetClick = () => {
-    serializer.set(INITIAL_APP_STATE);
-    window.history.pushState(serializer.get(), '', null);
-    render(serializer.get());
+    setState(INITIAL_APP_STATE, 'push');
   };
 
   const handleDateChange = (date: Date) => {
-    serializer.set({
+    setState({
       ...serializer.get(),
       date
-    });
-    window.history.pushState(serializer.get(), '', null);
-    render(serializer.get());
+    }, 'push');
   };
 
   window.onpopstate = (event) => {
-    if (event.state) {
-      serializer.set(event.state);
-      render(serializer.get());
+    if (event.state && event.state.version === INITIAL_APP_STATE.version) {
+      setState(event.state);
     }
   };
+
+  function setState(newState: SerializableAppState, historyAction: 'push'|'replace'|null = null) {
+    serializer.set(newState);
+    if (historyAction === 'push') {
+      window.history.pushState(newState, '', null);
+    } else if (historyAction === 'replace') {
+      window.history.replaceState(newState, '', null);
+    }
+    render(newState);
+  }
 
   function render(appState: SerializableAppState) {
     const interviewClass = TenantInterview;
@@ -107,13 +112,10 @@ window.addEventListener('DOMContentLoaded', () => {
       initialState: appState.interviewState,
       now: appState.date,
       onStateChange: (interviewState) => {
-        const newState = {
+        setState({
           ...appState,
           interviewState
-        };
-        serializer.set(newState);
-        window.history.pushState(newState, '', null);
-        render(newState);
+        }, 'push');
       },
       onTitleChange: (title) => {
         document.title = title;
@@ -143,6 +145,5 @@ window.addEventListener('DOMContentLoaded', () => {
     );
   }
 
-  window.history.replaceState(serializer.get(), '', null);
-  render(serializer.get());
+  setState(serializer.get(), 'replace');
 });
