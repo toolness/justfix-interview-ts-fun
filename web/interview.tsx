@@ -8,7 +8,7 @@ import { makeElement } from '../lib/web/util';
 import { InterviewOptions, Interview } from '../lib/interview';
 
 export interface InterviewState<S> {
-  tenant: S;
+  s: S;
   recording: RecordedAction[];
 }
 
@@ -57,7 +57,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       now: new Date(this.props.now)
     });
     this.interview.on('change', this.handleInterviewChange);
-    this.interview.execute(this.props.initialState.tenant).catch(err => {
+    this.interview.execute(this.props.initialState.s).catch(err => {
       if (err instanceof IOCancellationError && this.state.interviewId > interviewId) {
         // The interview was waiting for some kind of user input or timeout
         // but this component has since been refreshed, so this exception is to
@@ -99,12 +99,12 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       this.props.onTitleChange(title);
     }
   }
-  private handleInterviewChange(_: S, tenant: S) {
+  private handleInterviewChange(_: S, s: S) {
     if (!this.recordableIo) {
       throw new Error('Assertion failure!');
     }
     this.setState({
-      tenant,
+      s,
       recording: this.recordableIo.resetRecording()
     });
   }
@@ -127,9 +127,9 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     } else if (this.state.interviewId === prevState.interviewId) {
       if (this.props.onStateChange &&
           (this.state.recording !== prevState.recording ||
-           this.state.tenant !== prevState.tenant)) {
+           this.state.s !== prevState.s)) {
         this.props.onStateChange({
-          tenant: this.state.tenant,
+          s: this.state.s,
           recording: this.state.recording
         });
       }

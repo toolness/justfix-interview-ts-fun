@@ -13,16 +13,16 @@ import ReactDom from 'react-dom';
 import { InterviewComponent, ICProps, InterviewState } from './interview';
 
 interface AppState {
-  version: 2,
+  version: 3,
   date: DateString,
   interviewState: InterviewState<Tenant>
 }
 
 const INITIAL_APP_STATE: AppState = {
-  version: 2,
+  version: 3,
   date: new Date(),
   interviewState: {
-    tenant: {},
+    s: {},
     recording: [],
   },
 };
