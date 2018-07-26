@@ -19,7 +19,7 @@ export interface ICProps<S> {
   now: DateString;
   onStateChange?: (state: InterviewState<S>) => void;
   onTitleChange?: (title: string) => void;
-  onStart?: () => void;
+  onStart?: (interview: Interview<S>) => void;
   onStop?: () => void;
 }
 
@@ -60,7 +60,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     });
     this.interview.on('change', this.handleInterviewChange);
     if (this.props.onStart) {
-      this.props.onStart();
+      this.props.onStart(this.interview);
     }
     this.interview.execute(this.props.initialState.s).then((finalState) => {
       if (this.props.onStop) {

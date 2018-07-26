@@ -3,11 +3,10 @@ import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
 import { getElement } from '../lib/web/util';
-import { FollowUp } from '../lib/interview';
+import { FollowUp, Interview } from '../lib/interview';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { InterviewComponent, ICProps, InterviewState } from '../lib/web/components/interview';
-import { NullIO } from '../lib/null-io';
 
 interface SerializableAppState {
   version: 3,
@@ -94,26 +93,23 @@ window.addEventListener('DOMContentLoaded', () => {
     render(newState);
   }
 
-  let isInterviewStopped = false;
+  let isInterviewStopped = true;
+  let interview: Interview<Tenant>|null = null;
 
   function render(appState: SerializableAppState) {
-    const interviewClass = TenantInterview;
-    const nullInterview = new interviewClass({
-      io: new NullIO(),
-      now: new Date(appState.date)
-    });
-    const followUps = nullInterview.getFollowUps(appState.interviewState.s).filter(followUp => {
+    const followUps = interview ? interview.getFollowUps(appState.interviewState.s).filter(followUp => {
       // We are strictly interested in follow-ups that are not ready for follow-up
       // right now.
       return new Date(appState.date) < new Date(followUp.date);
-    });
+    }) : [];
 
     const interviewProps: ICProps<Tenant> = {
       modalTemplate,
-      interviewClass,
+      interviewClass: TenantInterview,
       initialState: appState.interviewState,
       now: appState.date,
-      onStart: () => {
+      onStart: (newInterview) => {
+        interview = newInterview;
         isInterviewStopped = false;
         render(appState);
       },
