@@ -19,6 +19,8 @@ export interface ICProps<S> {
   now: DateString;
   onStateChange?: (state: InterviewState<S>) => void;
   onTitleChange?: (title: string) => void;
+  onStart?: () => void;
+  onStop?: () => void;
 }
 
 type ICState<S> = {
@@ -57,7 +59,14 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       now: new Date(this.props.now)
     });
     this.interview.on('change', this.handleInterviewChange);
-    this.interview.execute(this.props.initialState.s).catch(err => {
+    if (this.props.onStart) {
+      this.props.onStart();
+    }
+    this.interview.execute(this.props.initialState.s).then((finalState) => {
+      if (this.props.onStop) {
+        this.props.onStop();
+      }
+    }).catch(err => {
       if (err instanceof IOCancellationError && this.state.interviewId > interviewId) {
         // The interview was waiting for some kind of user input or timeout
         // but this component has since been refreshed, so this exception is to

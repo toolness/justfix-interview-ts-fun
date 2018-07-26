@@ -94,6 +94,8 @@ window.addEventListener('DOMContentLoaded', () => {
     render(newState);
   }
 
+  let isInterviewStopped = false;
+
   function render(appState: SerializableAppState) {
     const interviewClass = TenantInterview;
     const nullInterview = new interviewClass({
@@ -111,6 +113,14 @@ window.addEventListener('DOMContentLoaded', () => {
       interviewClass,
       initialState: appState.interviewState,
       now: appState.date,
+      onStart: () => {
+        isInterviewStopped = false;
+        render(appState);
+      },
+      onStop: () => {
+        isInterviewStopped = true;
+        render(appState);
+      },
       onStateChange: (interviewState) => {
         setState({
           ...appState,
@@ -128,6 +138,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div className="columns">
           <div className="column is-three-quarters">
             <InterviewComponent {...interviewProps} />
+            {isInterviewStopped ? "No more questions for now!" : null}
           </div>
           <div className="column">
             {followUps.length ?
