@@ -117,8 +117,16 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
   }
   componentDidUpdate(prevProps: ICProps<S>, prevState: ICState<S>) {
     this.ensureUnchanged(prevProps, ['interviewClass', 'modalTemplate']);
-    if ((this.props.initialState !== prevProps.initialState) ||
-        (new Date(this.props.now).getTime() !== new Date(prevProps.now).getTime())) {
+    const initialStateChanged = (
+      this.props.initialState.s !== prevProps.initialState.s ||
+      this.props.initialState.recording !== prevProps.initialState.recording
+    );
+    const initialStateIsCurrentState = (
+      this.props.initialState.s === this.state.s ||
+      this.props.initialState.recording === this.state.recording
+    );
+    if ((initialStateChanged && !initialStateIsCurrentState) ||
+        new Date(this.props.now).getTime() !== new Date(prevProps.now).getTime()) {
       this.teardownInterview();
       this.setState({
         ...this.props.initialState,

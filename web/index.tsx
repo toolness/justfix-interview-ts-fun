@@ -107,11 +107,13 @@ window.addEventListener('DOMContentLoaded', () => {
       initialState: appState.interviewState,
       now: appState.date,
       onStateChange: (interviewState) => {
-        serializer.set({
+        const newState = {
           ...appState,
           interviewState
-        });
-        window.history.pushState(serializer.get(), '', null);
+        };
+        serializer.set(newState);
+        window.history.pushState(newState, '', null);
+        render(newState);
       },
       onTitleChange: (title) => {
         document.title = title;
