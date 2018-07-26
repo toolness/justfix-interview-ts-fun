@@ -196,6 +196,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function render(appState: AppState) {
     appState = JSON.parse(JSON.stringify(appState));
+
     const props: ICProps<Tenant> = {
       modalTemplate,
       initialState: appState.interviewState,
@@ -213,7 +214,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    ReactDom.render(React.createElement(InterviewComponent, props), mainDiv);
+    ReactDom.render(<InterviewComponent {...props} />, mainDiv);
   }
 
   window.history.replaceState(serializer.get(), '', null);

@@ -18,7 +18,7 @@ const commonOptions = {
 const webConfig = {
   ...commonOptions,
   target: 'web',
-  entry: './web/index.ts',
+  entry: './web/index.tsx',
   devtool: 'inline-source-map',
   mode: 'development',
   output: {
