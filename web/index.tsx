@@ -1,4 +1,4 @@
-import { DateString, getDaysAway } from '../lib/util';
+import { DateString, getDaysAway, getISODate } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
@@ -170,6 +170,8 @@ function restart(options: RestartOptions = { pushState: true }) {
 
 interface AppProps {
   onResetClick: () => void;
+  onDateChange: (date: Date) => void;
+  now: DateString;
   children: JSX.Element;
 }
 
@@ -189,7 +191,7 @@ function App(props: AppProps): JSX.Element {
             <div className="field">
               <label className="label" htmlFor="date">Current simulated date:</label>
               <div className="control">
-                <input className="input" type="date" name="date" />
+                <input className="input" type="date" name="date" value={getISODate(props.now)} onChange={(e) => props.onDateChange(e.target.valueAsDate)}  />
               </div>
             </div>
             <div className="control">
@@ -207,8 +209,17 @@ window.addEventListener('DOMContentLoaded', () => {
   const mainSection = getElement('section', '#main');
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
 
-  const onResetClick = () => {
+  const handleResetClick = () => {
     serializer.set(INITIAL_APP_STATE);
+    window.history.pushState(serializer.get(), '', null);
+    render(serializer.get());
+  };
+
+  const handleDateChange = (date: Date) => {
+    serializer.set({
+      ...serializer.get(),
+      date
+    });
     window.history.pushState(serializer.get(), '', null);
     render(serializer.get());
   };
@@ -239,7 +250,7 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     ReactDom.render(
-      <App onResetClick={onResetClick}>
+      <App onResetClick={handleResetClick} onDateChange={handleDateChange} now={appState.date}>
         <InterviewComponent {...props} />
       </App>,
       mainSection

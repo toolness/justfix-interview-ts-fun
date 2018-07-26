@@ -15,6 +15,15 @@ export function addDays(date: DateString, days: number): Date {
 }
 
 /**
+ * Get the date part of the ISO-formatted date, e.g. "2010-01-02".
+ * 
+ * @param date The date.
+ */
+export function getISODate(date: DateString): string {
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+/**
  * Calculates how many days away the given date is.
  * 
  * @param date The date in the future.
