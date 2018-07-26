@@ -10,7 +10,7 @@ import { IOCancellationError } from '../lib/interview-io';
 import { FollowUp } from '../lib/interview';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { InterviewComponent, ICProps, InterviewState } from './interview';
+import { InterviewComponent, ICProps, InterviewState } from '../lib/web/components/interview';
 
 interface AppState {
   version: 3,

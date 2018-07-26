@@ -1,11 +1,11 @@
 import React from 'react';
-import { WebInterviewIO } from '../lib/web/io';
-import { ModalBuilder } from '../lib/web/modal';
-import { DateString } from '../lib/util';
-import { IOCancellationError } from '../lib/interview-io';
-import { RecordedAction, RecordableInterviewIO, IoActionType } from '../lib/recordable-io';
-import { makeElement } from '../lib/web/util';
-import { InterviewOptions, Interview } from '../lib/interview';
+import { WebInterviewIO } from '../io';
+import { ModalBuilder } from '../modal';
+import { DateString } from '../../util';
+import { IOCancellationError } from '../../interview-io';
+import { RecordedAction, RecordableInterviewIO, IoActionType } from '../../recordable-io';
+import { makeElement } from '../util';
+import { InterviewOptions, Interview } from '../../interview';
 
 export interface InterviewState<S> {
   s: S;
