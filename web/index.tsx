@@ -88,34 +88,34 @@ class App extends React.Component<AppProps, AppState> {
     this.handleTitleChange = this.handleTitleChange.bind(this);
   }
 
-  handleResetClick() {
+  private handleResetClick() {
     this.updateSerState(this.props.serializer.defaultState, 'push');
   }
 
-  handleDateChange(date: Date) {
+  private handleDateChange(date: Date) {
     this.updateSerState({ date }, 'push');
   }
 
-  handleInterviewStart(newInterview: Interview<Tenant>) {
+  private handleInterviewStart(newInterview: Interview<Tenant>) {
     this.setState({
       interview: newInterview,
       isInterviewStopped: false
     });
   }
 
-  handleInterviewStop() {
+  private handleInterviewStop() {
     this.setState({ isInterviewStopped: true });
   }
 
-  handleInterviewStateChange(interviewState: InterviewState<Tenant>) {
+  private handleInterviewStateChange(interviewState: InterviewState<Tenant>) {
     this.updateSerState({ interviewState }, 'push');
   }
 
-  handleTitleChange(title: string) {
+  private handleTitleChange(title: string) {
     document.title = title;
   }
 
-  updateSerState(updates: Partial<SerializableAppState>, historyAction: 'push'|'replace'|null = null) {
+  private updateSerState(updates: Partial<SerializableAppState>, historyAction: 'push'|'replace'|null = null) {
     const newState = {
       ...this.state.serState,
       ...updates
