@@ -82,7 +82,11 @@ class App extends React.Component<AppProps, AppState> {
     };
   }
 
-  updateSerState(newState: SerializableAppState, historyAction: 'push'|'replace'|null = null) {
+  updateSerState(updates: Partial<SerializableAppState>, historyAction: 'push'|'replace'|null = null) {
+    const newState = {
+      ...this.state.serState,
+      ...updates
+    };
     this.props.serializer.set(newState);
     if (historyAction === 'push') {
       window.history.pushState(newState, '', null);
@@ -99,7 +103,7 @@ class App extends React.Component<AppProps, AppState> {
       }
     };  
 
-    this.updateSerState(this.props.serializer.get(), 'replace');
+    this.updateSerState(this.state.serState, 'replace');
   }
 
   render() {
@@ -118,10 +122,7 @@ class App extends React.Component<AppProps, AppState> {
     };
 
     const handleDateChange = (date: Date) => {
-      this.updateSerState({
-        ...this.state.serState,
-        date
-      }, 'push');
+      this.updateSerState({ date }, 'push');
     };
 
     const followUps = interview ? interview.getFutureFollowUps(serState.interviewState.s) : [];
@@ -140,10 +141,7 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({ isInterviewStopped: true });
       },
       onStateChange: (interviewState) => {
-        this.updateSerState({
-          ...serState,
-          interviewState
-        }, 'push');
+        this.updateSerState({ interviewState }, 'push');
       },
       onTitleChange: (title) => {
         document.title = title;
