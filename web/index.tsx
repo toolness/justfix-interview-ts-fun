@@ -195,8 +195,6 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   function render(appState: AppState) {
-    appState = JSON.parse(JSON.stringify(appState));
-
     const props: ICProps<Tenant> = {
       modalTemplate,
       initialState: appState.interviewState,
