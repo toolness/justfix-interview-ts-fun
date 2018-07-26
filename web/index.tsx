@@ -8,17 +8,17 @@ import { ModalBuilder } from '../lib/web/modal';
 import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
 import { IOCancellationError } from '../lib/interview-io';
 import { FollowUp } from '../lib/interview';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import ReactDom from 'react-dom';
 import { InterviewComponent, ICProps, InterviewState } from '../lib/web/components/interview';
 
-interface AppState {
+interface SerializableAppState {
   version: 3,
   date: DateString,
   interviewState: InterviewState<Tenant>
 }
 
-const INITIAL_APP_STATE: AppState = {
+const INITIAL_APP_STATE: SerializableAppState = {
   version: 3,
   date: new Date(),
   interviewState: {
@@ -168,22 +168,48 @@ function restart(options: RestartOptions = { pushState: true }) {
 }
 */
 
-function bindResetButton() {
-  const resetButton = getElement('button', '#reset');
+interface AppProps {
+  onResetClick: () => void;
+  children: JSX.Element;
+}
 
+function App(props: AppProps): JSX.Element {
+  return (
+    <div className="container">
+      <h1 className="title">JustFix interview fun</h1>
+      <div className="columns">
+        <div className="column is-three-quarters">
+          {props.children}
+        </div>
+        <div className="column">
+          <nav className="panel">
+            <p className="panel-heading">Follow-ups</p>
+          </nav>
+          <div className="box has-background-light">
+            <div className="field">
+              <label className="label" htmlFor="date">Current simulated date:</label>
+              <div className="control">
+                <input className="input" type="date" name="date" />
+              </div>
+            </div>
+            <div className="control">
+              <button onClick={props.onResetClick} className="button">Reset interview</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   const modalTemplate = getElement('template', '#modal');
-  const mainDiv = getElement('div', '#main');
-  const resetButton = getElement('button', '#reset');
+  const mainSection = getElement('section', '#main');
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
 
-  // We want to bind this reset button as early as possible, so that if the
-  // serializer state is broken (e.g. because the schema changed recently),
-  // it's always possible to reset.
-  resetButton.onclick = () => {
+  const onResetClick = () => {
     serializer.set(INITIAL_APP_STATE);
+    window.history.pushState(serializer.get(), '', null);
     render(serializer.get());
   };
 
@@ -194,7 +220,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  function render(appState: AppState) {
+  function render(appState: SerializableAppState) {
     const props: ICProps<Tenant> = {
       modalTemplate,
       initialState: appState.interviewState,
@@ -212,7 +238,12 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    ReactDom.render(<InterviewComponent {...props} />, mainDiv);
+    ReactDom.render(
+      <App onResetClick={onResetClick}>
+        <InterviewComponent {...props} />
+      </App>,
+      mainSection
+    );
   }
 
   window.history.replaceState(serializer.get(), '', null);
