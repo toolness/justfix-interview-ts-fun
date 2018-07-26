@@ -199,6 +199,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const props: ICProps = {
       modalTemplate,
       initialState: appState.interviewState,
+      interviewClass: TenantInterview,
       now: appState.date,
       onStateChange: (interviewState) => {
         serializer.set({

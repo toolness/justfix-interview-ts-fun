@@ -2,11 +2,11 @@ import React from 'react';
 import { Tenant } from '../lib/tenant';
 import { WebInterviewIO } from '../lib/web/io';
 import { ModalBuilder } from '../lib/web/modal';
-import { TenantInterview } from '../lib/tenant-interview';
 import { DateString } from '../lib/util';
 import { IOCancellationError } from '../lib/interview-io';
 import { RecordedAction, RecordableInterviewIO, IoActionType } from '../lib/recordable-io';
 import { makeElement } from '../lib/web/util';
+import { InterviewOptions, Interview } from '../lib/interview';
 
 export interface InterviewState {
   tenant: Tenant;
@@ -16,6 +16,7 @@ export interface InterviewState {
 export interface ICProps {
   modalTemplate: HTMLTemplateElement;
   initialState: InterviewState;
+  interviewClass: new (options: InterviewOptions<Tenant>) => Interview<Tenant>;
   now: DateString;
   onStateChange?: (state: InterviewState) => void;
   onTitleChange?: (title: string) => void;
@@ -30,7 +31,7 @@ export class InterviewComponent extends React.Component<ICProps, ICState> {
   innerDiv: HTMLDivElement|null = null;
   io: WebInterviewIO|null = null;
   recordableIo: RecordableInterviewIO|null = null;
-  interview: TenantInterview|null = null;
+  interview: Interview<Tenant>|null = null;
 
   constructor(props: ICProps) {
     super(props);
@@ -52,7 +53,7 @@ export class InterviewComponent extends React.Component<ICProps, ICState> {
     this.io.on('title', this.handleTitleChange);
     this.recordableIo = new RecordableInterviewIO(this.io, this.props.initialState.recording);
     this.recordableIo.on('begin-recording-action', this.handleBeginRecordingAction);
-    this.interview = new TenantInterview({
+    this.interview = new this.props.interviewClass({
       io: this.recordableIo,
       now: new Date(this.props.now)
     });
@@ -108,7 +109,15 @@ export class InterviewComponent extends React.Component<ICProps, ICState> {
       recording: this.recordableIo.resetRecording()
     });
   }
+  private ensureUnchanged(prevProps: ICProps, props: (keyof ICProps)[]) {
+    for (let prop of props) {
+      if (prevProps[prop] !== this.props[prop]) {
+        throw new Error(`Changing the "${prop}" prop on ${this.constructor.name} is currently unsupported`);
+      }
+    }
+  }
   componentDidUpdate(prevProps: ICProps, prevState: ICState) {
+    this.ensureUnchanged(prevProps, ['interviewClass', 'modalTemplate']);
     if ((this.props.initialState !== prevProps.initialState) ||
         (new Date(this.props.now).getTime() !== new Date(prevProps.now).getTime())) {
       this.teardownInterview();
