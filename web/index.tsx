@@ -28,6 +28,44 @@ const INITIAL_APP_STATE: SerializableAppState = {
   },
 };
 
+function FollowUpsPanel<S>(props: {followUps: FollowUp<S>[], now: DateString}): JSX.Element {
+  return (
+    <nav className="panel">
+      <p className="panel-heading">Follow-ups</p>
+      {props.followUps.map(followUp => {
+        const days = getDaysAway(followUp.date, props.now);
+        const daysStr = `${days} ${days === 1 ? ' day' : ' days'}`;
+        return (
+          <div key={followUp.name} className="panel-block">
+            {followUp.name} We'll follow-up in {daysStr}.
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+function DateField(props: {onChange: (date: Date) => void, value: DateString, children: string}): JSX.Element {
+  return (
+    <div className="field">
+      <label className="label" htmlFor="date">{props.children}</label>
+      <div className="control">
+        <input className="input" type="date"
+               value={getISODate(props.value)}
+               onChange={(e) => props.onChange(e.target.valueAsDate)}  />
+      </div>
+    </div>
+  );
+}
+
+function Button(props: {onClick: () => void, children: string}): JSX.Element {
+  return (
+    <div className="control">
+      <button onClick={props.onClick} className="button">{props.children}</button>
+    </div>
+  );
+}
+
 interface AppProps<S> {
   onResetClick: () => void;
   onDateChange: (date: Date) => void;
@@ -37,25 +75,6 @@ interface AppProps<S> {
 }
 
 function App<S>(props: AppProps<S>): JSX.Element {
-  let followUpsPanel: JSX.Element|null = null;
-
-  if (props.followUps.length > 0) {
-    followUpsPanel = (
-      <nav className="panel">
-        <p className="panel-heading">Follow-ups</p>
-        {props.followUps.map(followUp => {
-          const days = getDaysAway(followUp.date, props.now);
-          const daysStr = `${days} ${days === 1 ? ' day' : ' days'}`;
-          return (
-            <div key={followUp.name} className="panel-block">
-              {followUp.name} We'll follow-up in {daysStr}.
-            </div>
-          );
-        })}
-      </nav>
-    );
-  }
-
   return (
     <div className="container">
       <h1 className="title">JustFix interview fun</h1>
@@ -64,17 +83,11 @@ function App<S>(props: AppProps<S>): JSX.Element {
           {props.children}
         </div>
         <div className="column">
-          {followUpsPanel}
+          {props.followUps.length ?
+            <FollowUpsPanel followUps={props.followUps} now={props.now} /> : null}
           <div className="box has-background-light">
-            <div className="field">
-              <label className="label" htmlFor="date">Current simulated date:</label>
-              <div className="control">
-                <input className="input" type="date" name="date" value={getISODate(props.now)} onChange={(e) => props.onDateChange(e.target.valueAsDate)}  />
-              </div>
-            </div>
-            <div className="control">
-              <button onClick={props.onResetClick} className="button">Reset interview</button>
-            </div>
+            <DateField onChange={props.onDateChange} value={props.now}>Current simulated date:</DateField>
+            <Button onClick={props.onResetClick}>Reset interview</Button>
           </div>
         </div>
       </div>
