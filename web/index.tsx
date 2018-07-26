@@ -97,12 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let interview: Interview<Tenant>|null = null;
 
   function render(appState: SerializableAppState) {
-    const followUps = interview ? interview.getFollowUps(appState.interviewState.s).filter(followUp => {
-      // We are strictly interested in follow-ups that are not ready for follow-up
-      // right now.
-      return new Date(appState.date) < new Date(followUp.date);
-    }) : [];
-
+    const followUps = interview ? interview.getFutureFollowUps(appState.interviewState.s) : [];
     const interviewProps: ICProps<Tenant> = {
       modalTemplate,
       interviewClass: TenantInterview,

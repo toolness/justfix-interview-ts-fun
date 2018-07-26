@@ -85,6 +85,18 @@ export abstract class Interview<S> extends EventEmitter {
   }
 
   /**
+   * Return all follow-ups that strictly occur in the future (i.e.,
+   * are not about to be followed-up now).
+   * 
+   * @param state The current state of the interview.
+   */
+  getFutureFollowUps(state: S): FollowUp<S>[] {
+    return this.getFollowUps(state).filter(followUp => {
+      return this.now < new Date(followUp.date);
+    });
+  }
+
+  /**
    * Execute the next valid follow-up, if any. If no valid
    * follow-ups are available, the original state is returned.
    * 
