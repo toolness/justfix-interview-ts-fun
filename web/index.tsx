@@ -6,7 +6,7 @@ import { getElement } from '../lib/web/util';
 import { FollowUp, Interview } from '../lib/interview';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { InterviewComponent, ICProps, InterviewState } from '../lib/web/components/interview';
+import { InterviewComponent, InterviewState } from '../lib/web/components/interview';
 
 interface SerializableAppState {
   version: 3,
@@ -80,6 +80,39 @@ class App extends React.Component<AppProps, AppState> {
       interview: null,
       isInterviewStopped: true
     };
+    this.handleResetClick = this.handleResetClick.bind(this);
+    this.handleDateChange = this.handleDateChange.bind(this);
+    this.handleInterviewStart = this.handleInterviewStart.bind(this);
+    this.handleInterviewStop = this.handleInterviewStop.bind(this);
+    this.handleInterviewStateChange = this.handleInterviewStateChange.bind(this);
+    this.handleTitleChange = this.handleTitleChange.bind(this);
+  }
+
+  handleResetClick() {
+    this.updateSerState(this.props.serializer.defaultState, 'push');
+  }
+
+  handleDateChange(date: Date) {
+    this.updateSerState({ date }, 'push');
+  }
+
+  handleInterviewStart(newInterview: Interview<Tenant>) {
+    this.setState({
+      interview: newInterview,
+      isInterviewStopped: false
+    });
+  }
+
+  handleInterviewStop() {
+    this.setState({ isInterviewStopped: true });
+  }
+
+  handleInterviewStateChange(interviewState: InterviewState<Tenant>) {
+    this.updateSerState({ interviewState }, 'push');
+  }
+
+  handleTitleChange(title: string) {
+    document.title = title;
   }
 
   updateSerState(updates: Partial<SerializableAppState>, historyAction: 'push'|'replace'|null = null) {
@@ -117,53 +150,33 @@ class App extends React.Component<AppProps, AppState> {
       isInterviewStopped
      } = this.state;
 
-    const handleResetClick = () => {
-      this.updateSerState(serializer.defaultState, 'push');
-    };
-
-    const handleDateChange = (date: Date) => {
-      this.updateSerState({ date }, 'push');
-    };
-
     const followUps = interview ? interview.getFutureFollowUps(serState.interviewState.s) : [];
-    const interviewProps: ICProps<Tenant> = {
-      modalTemplate: this.props.modalTemplate,
-      interviewClass: TenantInterview,
-      initialState: serState.interviewState,
-      now: serState.date,
-      onStart: (newInterview) => {
-        this.setState({
-          interview: newInterview,
-          isInterviewStopped: false
-        });
-      },
-      onStop: () => {
-        this.setState({ isInterviewStopped: true });
-      },
-      onStateChange: (interviewState) => {
-        this.updateSerState({ interviewState }, 'push');
-      },
-      onTitleChange: (title) => {
-        document.title = title;
-      }
-    };
 
     return (
       <div className="container">
         <h1 className="title">JustFix interview fun</h1>
         <div className="columns">
           <div className="column is-three-quarters">
-            <InterviewComponent {...interviewProps} />
+            <InterviewComponent
+              modalTemplate={this.props.modalTemplate}
+              interviewClass={TenantInterview}
+              initialState={serState.interviewState}
+              now={serState.date}
+              onStart={this.handleInterviewStart}
+              onStop={this.handleInterviewStop}
+              onStateChange={this.handleInterviewStateChange}
+              onTitleChange={this.handleTitleChange}
+            />
             {isInterviewStopped ? "No more questions for now!" : null}
           </div>
           <div className="column">
             {followUps.length ?
               <FollowUpsPanel followUps={followUps} now={serState.date} /> : null}
             <div className="box has-background-light">
-              <DateField onChange={handleDateChange} value={serState.date}>
+              <DateField onChange={this.handleDateChange} value={serState.date}>
                 Current simulated date:
               </DateField>
-              <Button onClick={handleResetClick}>Reset interview</Button>
+              <Button onClick={this.handleResetClick}>Reset interview</Button>
             </div>
           </div>
         </div>
