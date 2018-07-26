@@ -10,20 +10,24 @@ import { IOCancellationError } from '../lib/interview-io';
 import { FollowUp } from '../lib/interview';
 import React from 'react';
 import ReactDom from 'react-dom';
-import { InterviewComponent, ICProps } from './interview';
+import { InterviewComponent, ICProps, InterviewState } from './interview';
 
 interface AppState {
+  version: 2,
   date: DateString,
-  tenant: Tenant,
-  recording: RecordedAction[],
+  interviewState: InterviewState
 }
 
 const INITIAL_APP_STATE: AppState = {
+  version: 2,
   date: new Date(),
-  tenant: {},
-  recording: [],
+  interviewState: {
+    tenant: {},
+    recording: [],
+  },
 };
 
+/*
 interface RestartOptions {
   pushState: boolean;
 }
@@ -162,24 +166,55 @@ function restart(options: RestartOptions = { pushState: true }) {
     throw err;
   });
 }
+*/
+
+function bindResetButton() {
+  const resetButton = getElement('button', '#reset');
+
+}
 
 window.addEventListener('DOMContentLoaded', () => {
-  // restart({ pushState: false });
+  const modalTemplate = getElement('template', '#modal');
+  const mainDiv = getElement('div', '#main');
+  const resetButton = getElement('button', '#reset');
+  const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
 
-  const props: ICProps = {
-    modalTemplate: getElement('template', '#modal'),
-    initialState: { tenant: {}, recording: [] },
-    now: new Date(),
-    onStateChange: (state) => {
-      console.log('state change oooo', state);
-    },
-    onTitleChange: (title) => {
-      console.log('title change', title);
+  // We want to bind this reset button as early as possible, so that if the
+  // serializer state is broken (e.g. because the schema changed recently),
+  // it's always possible to reset.
+  resetButton.onclick = () => {
+    serializer.set(INITIAL_APP_STATE);
+    render(serializer.get());
+  };
+
+  window.onpopstate = (event) => {
+    if (event.state) {
+      serializer.set(event.state);
+      render(serializer.get());
     }
   };
 
-  ReactDom.render(
-    React.createElement(InterviewComponent, props),
-    getElement('div', '#main')
-  );
+  function render(appState: AppState) {
+    appState = JSON.parse(JSON.stringify(appState));
+    const props: ICProps = {
+      modalTemplate,
+      initialState: appState.interviewState,
+      now: appState.date,
+      onStateChange: (interviewState) => {
+        serializer.set({
+          ...appState,
+          interviewState
+        });
+        window.history.pushState(serializer.get(), '', null);
+      },
+      onTitleChange: (title) => {
+        document.title = title;
+      }
+    };
+
+    ReactDom.render(React.createElement(InterviewComponent, props), mainDiv);
+  }
+
+  window.history.replaceState(serializer.get(), '', null);
+  render(serializer.get());
 });

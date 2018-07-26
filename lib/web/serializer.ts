@@ -1,19 +1,31 @@
-export class LocalStorageSerializer<S> {
-  constructor(readonly keyname: string, readonly defaultState: S) {
-    this.keyname = keyname;
-    this.defaultState = defaultState;
+export interface VersionedState {
+  version: number;
+}
+
+export class LocalStorageSerializer<S extends VersionedState> {
+  constructor(readonly keyname: string, readonly defaultState: S, readonly version: number) {
+  }
+
+  private ensureVersion(state: S) {
+    const version = state && state.version;
+    if (version !== this.version) {
+      throw new Error(`invalid version, expected ${this.version} but got ${version}`);
+    }
   }
 
   get(): S {
     try {
       const contents = window.localStorage[this.keyname];
-      return JSON.parse(contents);
+      const state = JSON.parse(contents);
+      this.ensureVersion(state);
+      return state;
     } catch (e) {
       return this.defaultState;
     }
   }
 
   set(state: S) {
+    this.ensureVersion(state);
     const contents = JSON.stringify(state, null, 2);
     window.localStorage[this.keyname] = contents;
   }

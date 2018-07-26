@@ -18,6 +18,7 @@ export class RecordableInterviewIO extends InterviewIO {
 
   constructor(readonly delegate: InterviewIO, private readonly recording: RecordedAction[] = []) {
     super();
+    this.recording = recording.slice();
     this.newRecording = recording.slice();
   }
 
