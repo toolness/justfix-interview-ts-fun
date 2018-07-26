@@ -31,26 +31,19 @@ const INITIAL_APP_STATE: SerializableAppState = {
 interface AppProps<S> {
   onResetClick: () => void;
   onDateChange: (date: Date) => void;
-  interview: Interview<S>;
-  interviewState: S;
+  followUps: FollowUp<S>[];
   now: DateString;
   children: JSX.Element;
 }
 
 function App<S>(props: AppProps<S>): JSX.Element {
-  const followUps = props.interview.getFollowUps(props.interviewState).filter(followUp => {
-    // We are strictly interested in follow-ups that are not ready for follow-up
-    // right now.
-    return new Date(props.now) < new Date(followUp.date);
-  });
-
   let followUpsPanel: JSX.Element|null = null;
 
-  if (followUps.length > 0) {
+  if (props.followUps.length > 0) {
     followUpsPanel = (
       <nav className="panel">
         <p className="panel-heading">Follow-ups</p>
-        {followUps.map(followUp => {
+        {props.followUps.map(followUp => {
           const days = getDaysAway(followUp.date, props.now);
           const daysStr = `${days} ${days === 1 ? ' day' : ' days'}`;
           return (
@@ -117,15 +110,21 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   function render(appState: SerializableAppState) {
-    const interview = new TenantInterview({
+    const interviewClass = TenantInterview;
+    const nullInterview = new interviewClass({
       io: new NullIO(),
       now: new Date(appState.date)
+    });
+    const followUps = nullInterview.getFollowUps(appState.interviewState.s).filter(followUp => {
+      // We are strictly interested in follow-ups that are not ready for follow-up
+      // right now.
+      return new Date(appState.date) < new Date(followUp.date);
     });
 
     const props: ICProps<Tenant> = {
       modalTemplate,
+      interviewClass,
       initialState: appState.interviewState,
-      interviewClass: TenantInterview,
       now: appState.date,
       onStateChange: (interviewState) => {
         serializer.set({
@@ -144,8 +143,7 @@ window.addEventListener('DOMContentLoaded', () => {
          onResetClick={handleResetClick}
          onDateChange={handleDateChange}
          now={appState.date}
-         interview={interview}
-         interviewState={appState.interviewState.s}>
+         followUps={followUps}>
         <InterviewComponent {...props} />
       </App>,
       mainSection
