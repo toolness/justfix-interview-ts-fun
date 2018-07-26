@@ -15,7 +15,7 @@ import { InterviewComponent, ICProps, InterviewState } from './interview';
 interface AppState {
   version: 2,
   date: DateString,
-  interviewState: InterviewState
+  interviewState: InterviewState<Tenant>
 }
 
 const INITIAL_APP_STATE: AppState = {
@@ -196,7 +196,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function render(appState: AppState) {
     appState = JSON.parse(JSON.stringify(appState));
-    const props: ICProps = {
+    const props: ICProps<Tenant> = {
       modalTemplate,
       initialState: appState.interviewState,
       interviewClass: TenantInterview,

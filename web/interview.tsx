@@ -1,5 +1,4 @@
 import React from 'react';
-import { Tenant } from '../lib/tenant';
 import { WebInterviewIO } from '../lib/web/io';
 import { ModalBuilder } from '../lib/web/modal';
 import { DateString } from '../lib/util';
@@ -8,32 +7,32 @@ import { RecordedAction, RecordableInterviewIO, IoActionType } from '../lib/reco
 import { makeElement } from '../lib/web/util';
 import { InterviewOptions, Interview } from '../lib/interview';
 
-export interface InterviewState {
-  tenant: Tenant;
+export interface InterviewState<S> {
+  tenant: S;
   recording: RecordedAction[];
 }
 
-export interface ICProps {
+export interface ICProps<S> {
   modalTemplate: HTMLTemplateElement;
-  initialState: InterviewState;
-  interviewClass: new (options: InterviewOptions<Tenant>) => Interview<Tenant>;
+  initialState: InterviewState<S>;
+  interviewClass: new (options: InterviewOptions<S>) => Interview<S>;
   now: DateString;
-  onStateChange?: (state: InterviewState) => void;
+  onStateChange?: (state: InterviewState<S>) => void;
   onTitleChange?: (title: string) => void;
 }
 
-type ICState = {
+type ICState<S> = {
   interviewId: number;
-} & InterviewState;
+} & InterviewState<S>;
 
-export class InterviewComponent extends React.Component<ICProps, ICState> {
+export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S>> {
   div: React.RefObject<HTMLDivElement>;
   innerDiv: HTMLDivElement|null = null;
   io: WebInterviewIO|null = null;
   recordableIo: RecordableInterviewIO|null = null;
-  interview: Interview<Tenant>|null = null;
+  interview: Interview<S>|null = null;
 
-  constructor(props: ICProps) {
+  constructor(props: ICProps<S>) {
     super(props);
     this.state = { interviewId: 0, ...this.props.initialState };
     this.div = React.createRef();
@@ -100,7 +99,7 @@ export class InterviewComponent extends React.Component<ICProps, ICState> {
       this.props.onTitleChange(title);
     }
   }
-  private handleInterviewChange(_: Tenant, tenant: Tenant) {
+  private handleInterviewChange(_: S, tenant: S) {
     if (!this.recordableIo) {
       throw new Error('Assertion failure!');
     }
@@ -109,14 +108,14 @@ export class InterviewComponent extends React.Component<ICProps, ICState> {
       recording: this.recordableIo.resetRecording()
     });
   }
-  private ensureUnchanged(prevProps: ICProps, props: (keyof ICProps)[]) {
+  private ensureUnchanged(prevProps: ICProps<S>, props: (keyof ICProps<S>)[]) {
     for (let prop of props) {
       if (prevProps[prop] !== this.props[prop]) {
         throw new Error(`Changing the "${prop}" prop on ${this.constructor.name} is currently unsupported`);
       }
     }
   }
-  componentDidUpdate(prevProps: ICProps, prevState: ICState) {
+  componentDidUpdate(prevProps: ICProps<S>, prevState: ICState<S>) {
     this.ensureUnchanged(prevProps, ['interviewClass', 'modalTemplate']);
     if ((this.props.initialState !== prevProps.initialState) ||
         (new Date(this.props.now).getTime() !== new Date(prevProps.now).getTime())) {
