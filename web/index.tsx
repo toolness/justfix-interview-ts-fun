@@ -2,13 +2,9 @@ import { DateString, getDaysAway, getISODate } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
-import { WebInterviewIO } from '../lib/web/io';
-import { getElement, makeElement } from '../lib/web/util';
-import { ModalBuilder } from '../lib/web/modal';
-import { RecordableInterviewIO, RecordedAction } from '../lib/recordable-io';
-import { IOCancellationError } from '../lib/interview-io';
-import { FollowUp, Interview } from '../lib/interview';
-import React, { ReactElement } from 'react';
+import { getElement } from '../lib/web/util';
+import { FollowUp } from '../lib/interview';
+import React from 'react';
 import ReactDom from 'react-dom';
 import { InterviewComponent, ICProps, InterviewState } from '../lib/web/components/interview';
 import { NullIO } from '../lib/null-io';
@@ -66,35 +62,6 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
   );
 }
 
-interface AppProps<S> {
-  onResetClick: () => void;
-  onDateChange: (date: Date) => void;
-  followUps: FollowUp<S>[];
-  now: DateString;
-  children: JSX.Element;
-}
-
-function App<S>(props: AppProps<S>): JSX.Element {
-  return (
-    <div className="container">
-      <h1 className="title">JustFix interview fun</h1>
-      <div className="columns">
-        <div className="column is-three-quarters">
-          {props.children}
-        </div>
-        <div className="column">
-          {props.followUps.length ?
-            <FollowUpsPanel followUps={props.followUps} now={props.now} /> : null}
-          <div className="box has-background-light">
-            <DateField onChange={props.onDateChange} value={props.now}>Current simulated date:</DateField>
-            <Button onClick={props.onResetClick}>Reset interview</Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 window.addEventListener('DOMContentLoaded', () => {
   const modalTemplate = getElement('template', '#modal');
   const mainSection = getElement('section', '#main');
@@ -134,7 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
       return new Date(appState.date) < new Date(followUp.date);
     });
 
-    const props: ICProps<Tenant> = {
+    const interviewProps: ICProps<Tenant> = {
       modalTemplate,
       interviewClass,
       initialState: appState.interviewState,
@@ -152,13 +119,24 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     ReactDom.render(
-      <App
-         onResetClick={handleResetClick}
-         onDateChange={handleDateChange}
-         now={appState.date}
-         followUps={followUps}>
-        <InterviewComponent {...props} />
-      </App>,
+      <div className="container">
+        <h1 className="title">JustFix interview fun</h1>
+        <div className="columns">
+          <div className="column is-three-quarters">
+            <InterviewComponent {...interviewProps} />
+          </div>
+          <div className="column">
+            {followUps.length ?
+              <FollowUpsPanel followUps={followUps} now={appState.date} /> : null}
+            <div className="box has-background-light">
+              <DateField onChange={handleDateChange} value={appState.date}>
+                Current simulated date:
+              </DateField>
+              <Button onClick={handleResetClick}>Reset interview</Button>
+            </div>
+          </div>
+        </div>
+      </div>,
       mainSection
     );
   }
