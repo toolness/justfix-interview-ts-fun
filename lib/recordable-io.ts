@@ -2,7 +2,7 @@ import { InterviewIO, QuestionsFor } from "./interview-io";
 import { Question, MultiChoiceAnswer } from "./question";
 import { Photo } from "./util";
 
-export type IoActionType = 'ask'|'askMany'|'notify'|'setStatus';
+export type IoActionType = 'ask'|'askMany'|'notify'|'setStatus'|'sleep';
 
 export type RecordedAction = [IoActionType, any];
 
@@ -62,6 +62,10 @@ export class RecordableInterviewIO extends InterviewIO {
 
   setStatus(text: string) {
     return this.playbackOrRecord('setStatus', () => this.delegate.setStatus(text));
+  }
+
+  sleep(ms: number) {
+    return this.playbackOrRecord('sleep', () => this.delegate.sleep(ms));
   }
 
   createPhotoQuestion(text: string): Question<Photo> {

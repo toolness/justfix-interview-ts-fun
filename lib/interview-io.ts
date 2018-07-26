@@ -7,7 +7,7 @@ import {
   NonBlankQuestion
 } from './question';
 
-import { Photo } from './util';
+import { Photo, sleep } from './util';
 import { EventEmitter } from 'events';
 
 /**
@@ -53,6 +53,13 @@ export abstract class InterviewIO extends EventEmitter {
    * if there are any delays.
    */
   abstract setStatus(text: string): Promise<void>;
+
+  /**
+   * Sleep for the given amount of milliseconds.
+   */
+  sleep(ms: number): Promise<void> {
+    return sleep(ms);
+  }
 
   /**
    * Create a question that asks for a photo.

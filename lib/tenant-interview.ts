@@ -7,7 +7,7 @@ import {
 
 import { Interview, FollowUp } from './interview';
 
-import { addDays, sleep } from './util';
+import { addDays } from './util';
 
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
 
@@ -115,7 +115,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (tenant.rentalHistory && tenant.rentalHistory.status === 'accepted') {
       // TODO: Actually request rental history.
       await this.io.setStatus('Requesting your rental history...');
-      await sleep(3000);
+      await this.io.sleep(3000);
 
       await this.io.notify(
         `Rental history requested! We'll ask if you've received it in ` +
