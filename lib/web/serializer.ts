@@ -4,6 +4,9 @@ export interface VersionedState {
 
 export class LocalStorageSerializer<S extends VersionedState> {
   constructor(readonly keyname: string, readonly defaultState: S, readonly version: number) {
+    if (defaultState.version !== version) {
+      throw new Error(`Default state's version (${defaultState.version}) must match version (${version})`);
+    }
   }
 
   private ensureVersion(state: S) {
