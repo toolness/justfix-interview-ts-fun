@@ -1,4 +1,5 @@
 import React from 'react';
+import autobind from 'autobind-decorator';
 import { WebInterviewIO } from '../io';
 import { ModalBuilder } from '../modal';
 import { DateString } from '../../util';
@@ -38,9 +39,6 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     super(props);
     this.state = { interviewId: 0, ...this.props.initialState };
     this.div = React.createRef();
-    this.handleInterviewChange = this.handleInterviewChange.bind(this);
-    this.handleTitleChange = this.handleTitleChange.bind(this);
-    this.handleBeginRecordingAction = this.handleBeginRecordingAction.bind(this);
   }
   private setupInterview() {
     if (!this.div.current) {
@@ -92,6 +90,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       this.innerDiv = null;
     }
   }
+  @autobind
   private handleBeginRecordingAction(type: IoActionType) {
     if (type === 'ask' || type === 'askMany' || type === 'notify') {
       if (!this.recordableIo) {
@@ -103,11 +102,13 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       }
     }
   }
+  @autobind
   private handleTitleChange(title: string) {
     if (this.props.onTitleChange) {
       this.props.onTitleChange(title);
     }
   }
+  @autobind
   private handleInterviewChange(_: S, s: S) {
     if (!this.recordableIo) {
       throw new Error('Assertion failure!');

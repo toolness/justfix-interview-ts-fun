@@ -7,6 +7,7 @@ import { FollowUp, Interview } from '../lib/interview';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { InterviewComponent, InterviewState } from '../lib/web/components/interview';
+import autobind from '../node_modules/autobind-decorator';
 
 interface SerializableAppState {
   version: 3,
@@ -80,22 +81,19 @@ class App extends React.Component<AppProps, AppState> {
       interview: null,
       isInterviewStopped: true
     };
-    this.handleResetClick = this.handleResetClick.bind(this);
-    this.handleDateChange = this.handleDateChange.bind(this);
-    this.handleInterviewStart = this.handleInterviewStart.bind(this);
-    this.handleInterviewStop = this.handleInterviewStop.bind(this);
-    this.handleInterviewStateChange = this.handleInterviewStateChange.bind(this);
-    this.handleTitleChange = this.handleTitleChange.bind(this);
   }
 
+  @autobind
   private handleResetClick() {
     this.updateSerState(this.props.serializer.defaultState, 'push');
   }
 
+  @autobind
   private handleDateChange(date: Date) {
     this.updateSerState({ date }, 'push');
   }
 
+  @autobind
   private handleInterviewStart(newInterview: Interview<Tenant>) {
     this.setState({
       interview: newInterview,
@@ -103,14 +101,17 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  @autobind
   private handleInterviewStop() {
     this.setState({ isInterviewStopped: true });
   }
 
+  @autobind
   private handleInterviewStateChange(interviewState: InterviewState<Tenant>) {
     this.updateSerState({ interviewState }, 'push');
   }
 
+  @autobind
   private handleTitleChange(title: string) {
     document.title = title;
   }
