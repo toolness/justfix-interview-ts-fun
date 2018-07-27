@@ -11,6 +11,14 @@ const SCRIPT = process.argv[1];
 
 const STATE_FILE = '.tenant-interview-state.json';
 
+const INITIAL_STATE: Tenant = {
+  todos: {
+    // Initiate to-dos automatically, since we don't currently
+    // provide any UI for the user to do it themselves.
+    rentalHistory: 'initiated'
+  }
+};
+
 const HELP_TEXT = `
 Usage:
 
@@ -44,7 +52,7 @@ if (!module.parent) {
 
   const io = new ReadlineInterviewIO();
   const interview = new TenantInterview({ io, now });
-  const serializer = new FileSerializer(STATE_FILE, {} as Tenant);
+  const serializer = new FileSerializer(STATE_FILE, INITIAL_STATE);
   interview.on('change', (_, tenant) => {
     log(`Writing state to ${STATE_FILE}...`);
     serializer.set(tenant);
