@@ -72,6 +72,15 @@ export interface ReceivedRentalHistory {
 
 export type RentalHistory = AcceptedRentalHistory | RequestedRentalHistory | ReceivedRentalHistory;
 
+/**
+ * The status of a to-do item can be one of the following:
+ * 
+ *   * available - The to-do is displayed on the user's to-do list.
+ *   * initiated - The user has taken explicit action to begin the to-do item, e.g.
+ *       by clicking on the to-do or something similar.
+ */
+export type TenantTodoStatus = 'available'|'initiated';
+
 interface _Tenant {
   /** The tenant's full name. */
   name: string;
@@ -82,6 +91,11 @@ interface _Tenant {
   leaseType: LeaseType;
   housingIssues: HousingIssues;
   rentalHistory: RentalHistory;
+
+  /* This describes what to-do items to show on the user's to-do list. */
+  todos: {
+    rentalHistory?: TenantTodoStatus;
+  }
 }
 
 export type Tenant = Readonly<Partial<_Tenant>>;

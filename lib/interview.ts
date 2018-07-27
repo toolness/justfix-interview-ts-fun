@@ -12,6 +12,53 @@ export interface InterviewOptions<S> {
 }
 
 /**
+ * Properties common to any kind of to-do item.
+ */
+export interface BaseTodo {
+  /** The short, succinct name of the to-do item. */
+  name: string;
+
+  /** A longer description of the to-do item. */
+  description: string;
+}
+
+/**
+ * An actionable to-do, i.e. an item that the user can
+ * immediately take action on to move forward.
+ */
+export interface ActionableTodo<S> extends BaseTodo {
+  status: 'available';
+
+  /**
+   * Execute the to-do action. This should already be bound to a
+   * specific interview state by the code that created the to-do.
+   */
+  execute: () => Promise<S>;
+}
+
+/**
+ * A non-actionable to-do, i.e. an item that the user can
+ * see but not actually do anything with.
+ */
+export interface UnactionableTodo extends BaseTodo {
+  /** 
+   * The status of the to-do can be one of the following:
+   * 
+   *   * blocked - The to-do can't move forward due to some
+   *       action that is out of the user's immediate control.
+   *   * complete - The to-do is already completed.
+   *   * locked - The to-do can't yet be started because certain
+   *       prerequisites haven't been met. However, the
+   *       item should appear on the user's to-do list so they
+   *       know what the future holds.
+   */
+  status: 'blocked'|'complete'|'locked';
+}
+
+/** A to-do item in an interview. */
+export type Todo<S> = ActionableTodo<S> | UnactionableTodo;
+
+/**
  * A scheduled follow-up portion of an interview, parameterized by
  * the state of the interview. For example, if the
  * interview asks the user to do something in the next week, it
@@ -94,6 +141,16 @@ export abstract class Interview<S> extends EventEmitter {
     return this.getFollowUps(state).filter(followUp => {
       return this.now < new Date(followUp.date);
     });
+  }
+
+  /**
+   * This is an optional method that returns all of the to-do
+   * items for the interview, given its current state.
+   * 
+   * @param state The current state of the interview.
+   */
+  getTodos(state: S): Todo<S>[] {
+    return [];
   }
 
   /**

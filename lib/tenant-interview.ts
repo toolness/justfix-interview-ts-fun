@@ -2,12 +2,13 @@ import {
   Tenant,
   LeaseType,
   RequestedRentalHistory,
-  RentalHistory
+  RentalHistory,
+  TenantTodoStatus,
 } from './tenant';
 
-import { Interview, FollowUp } from './interview';
+import { Interview, FollowUp, Todo } from './interview';
 
-import { addDays } from './util';
+import { addDays, getFriendlyDate } from './util';
 
 const RENTAL_HISTORY_FOLLOWUP_DAYS = 7;
 
@@ -104,7 +105,9 @@ export class TenantInterview extends Interview<Tenant> {
       };
     }
 
-    if (!tenant.rentalHistory) {
+    if (!tenant.todos) return tenant;
+
+    if (tenant.todos.rentalHistory == 'initiated' && !tenant.rentalHistory) {
       return this.askForRentalHistory(tenant);
     }
 
@@ -139,10 +142,9 @@ export class TenantInterview extends Interview<Tenant> {
 
     const rentalHistory = tenant.rentalHistory;
     if (rentalHistory && rentalHistory.status === 'requested') {
-      const requested = new Date(rentalHistory.dateRequested).toDateString();
       followUps.push({
         date: rentalHistory.nextReminder,
-        name: `Your rental history was requested on ${requested}.`,
+        name: `Your rental history was requested on ${getFriendlyDate(rentalHistory.dateRequested)}.`,
         execute: async () => ({
           ...tenant,
           rentalHistory: await this.followupRentalHistory(rentalHistory)
@@ -151,5 +153,60 @@ export class TenantInterview extends Interview<Tenant> {
     }
 
     return followUps;
+  }
+
+  getRentalHistoryTodo(tenant: Tenant, status: TenantTodoStatus): Todo<Tenant> {
+    const defaultTodo: Todo<Tenant> = {
+      name: 'Get your rental history',
+      description: 'Your rental history is a record that shows the legal rent for your apartment, and whether or not you are Rent Stabilized.',
+      status: 'available',
+      execute: async () => {
+        return {
+          ...tenant,
+          todos: {
+            ...tenant.todos,
+            rentalHistory: 'initiated'
+          }
+        };
+      }
+    };
+
+    const rh = tenant.rentalHistory;
+
+    if (!rh || status === 'available') {
+      return defaultTodo;
+    }
+
+    if (rh.status === 'requested') {
+      return {
+        name: 'Requested rental history',
+        description: `We requested your rental history on ${getFriendlyDate(rh.dateRequested)} and will follow-up in ${RENTAL_HISTORY_FOLLOWUP_DAYS} days.`,
+        status: 'blocked'
+      };
+    }
+
+    if (rh.status === 'received') {
+      return {
+        name: 'Request your rental history',
+        description: rh.isRentStabilized
+          ? 'Your apartment is rent stabilized.'
+          : 'Your apartment is not rent stabilized.',
+        status: 'complete'
+      }
+    }
+
+    return defaultTodo;
+  }
+
+  getTodos(tenant: Tenant): Todo<Tenant>[] {
+    if (!tenant.todos) return [];
+
+    const todos: Todo<Tenant>[] = [];
+
+    if (tenant.todos.rentalHistory) {
+      todos.push(this.getRentalHistoryTodo(tenant, tenant.todos.rentalHistory));
+    }
+
+    return todos;
   }
 }

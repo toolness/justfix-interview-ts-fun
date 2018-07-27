@@ -15,6 +15,15 @@ export function addDays(date: DateString, days: number): Date {
 }
 
 /**
+ * Return a human-friendly representation of the date (not including the time).
+ * 
+ * @param date The date.
+ */
+export function getFriendlyDate(date: DateString): string {
+  return new Date(date).toDateString();
+}
+
+/**
  * Get the date part of the ISO-formatted date, e.g. "2010-01-02".
  * 
  * @param date The date.
