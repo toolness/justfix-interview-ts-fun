@@ -11,6 +11,14 @@ export interface InterviewOptions<S> {
   now?: Date;
 }
 
+export interface Command<S> {
+  /**
+   * Execute the command. This should already be bound to a
+   * specific interview state by the code that created the command.
+   */
+  execute: () => Promise<S>;
+}
+
 /**
  * Properties common to any kind of to-do item.
  */
@@ -26,14 +34,8 @@ export interface BaseTodo {
  * An actionable to-do, i.e. an item that the user can
  * immediately take action on to move forward.
  */
-export interface ActionableTodo<S> extends BaseTodo {
+export interface ActionableTodo<S> extends BaseTodo, Command<S> {
   status: 'available';
-
-  /**
-   * Execute the to-do action. This should already be bound to a
-   * specific interview state by the code that created the to-do.
-   */
-  execute: () => Promise<S>;
 }
 
 /**
@@ -65,7 +67,7 @@ export type Todo<S> = ActionableTodo<S> | UnactionableTodo;
  * might schedule a follow-up for a week later to ask the user
  * if they've done it yet.
  */
-export interface FollowUp<S> {
+export interface FollowUp<S> extends Command<S> {
   /** The scheduled date of the follow-up. */
   date: DateString;
 
@@ -73,12 +75,6 @@ export interface FollowUp<S> {
    * The name of the follow-up.
    */
   name: string;
-
-  /**
-   * Execute the follow-up action. This should already be bound to a
-   * specific interview state by the code that created the follow-up.
-   */
-  execute: () => Promise<S>;
 }
 
 /**
