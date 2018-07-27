@@ -170,11 +170,17 @@ export abstract class Interview<S> extends EventEmitter {
    * 
    * @param initialState 
    */
-  async execute(initialState: S): Promise<S> {
+  async execute(initialState: S, command?: Command<S>): Promise<S> {
     let state = initialState;
 
     while (true) {
-      let nextState = await this.askNext(state);
+      let nextState = state;
+      if (command) {
+        nextState = await command.execute();
+        command = undefined;
+      } else {
+        nextState = await this.askNext(state);
+      }
       if (nextState === state) {
         nextState = await this.executeNextFollowUp(state);
       }

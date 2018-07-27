@@ -66,13 +66,13 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
   );
 }
 
-function TodoList(props: { todos: Todo<Tenant>[] }): JSX.Element {
+function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => void }): JSX.Element {
   // TODO: Um we need to pass the todo back to the interview or something i guess.
   return (
     <ol>
-      {props.todos.map(todo => {
+      {props.todos.map((todo, i) => {
         const button = todo.status === 'available'
-          ? <Button onClick={todo.execute}>Start</Button>
+          ? <Button onClick={() => props.onClick(i)}>Start</Button>
           : null;
         return (
           <li key={todo.name}>
@@ -94,6 +94,7 @@ interface AppState {
   serState: SerializableAppState;
   interview: Interview<Tenant>|null;
   isInterviewStopped: boolean;
+  todoIndex?: number;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -126,7 +127,8 @@ class App extends React.Component<AppProps, AppState> {
 
   @autobind
   private handleInterviewStop() {
-    this.setState({ isInterviewStopped: true });
+    this.setState({ isInterviewStopped: true, todoIndex: undefined });
+    this.handleTitleChange('Dashboard');
   }
 
   @autobind
@@ -137,6 +139,11 @@ class App extends React.Component<AppProps, AppState> {
   @autobind
   private handleTitleChange(title: string) {
     document.title = title;
+  }
+
+  @autobind
+  private handleTodoClick(index: number) {
+    this.setState({ todoIndex: index });
   }
 
   private updateSerState(updates: Partial<SerializableAppState>, historyAction: 'push'|'replace'|null = null) {
@@ -150,7 +157,7 @@ class App extends React.Component<AppProps, AppState> {
     } else if (historyAction === 'replace') {
       window.history.replaceState(newState, '', null);
     }
-    this.setState({ serState: newState });
+    this.setState({ serState: newState, todoIndex: undefined });
   }
 
   componentDidMount() {
@@ -188,13 +195,16 @@ class App extends React.Component<AppProps, AppState> {
               interviewClass={TenantInterview}
               initialState={serState.interviewState}
               now={serState.date}
+              todoIndex={this.state.todoIndex}
               onStart={this.handleInterviewStart}
               onStop={this.handleInterviewStop}
               onStateChange={this.handleInterviewStateChange}
               onTitleChange={this.handleTitleChange}
             />
             {isInterviewStopped
-              ? (todos.length ? <TodoList todos={todos} /> : "No more questions for now!")
+              ? (todos.length
+                  ? <TodoList todos={todos} onClick={this.handleTodoClick} />
+                  : "No more questions for now!")
               : null}
           </div>
           <div className="column">

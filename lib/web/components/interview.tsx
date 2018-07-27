@@ -6,7 +6,7 @@ import { DateString } from '../../util';
 import { IOCancellationError } from '../../interview-io';
 import { RecordedAction, RecordableInterviewIO, IoActionType } from '../../recordable-io';
 import { makeElement } from '../util';
-import { InterviewOptions, Interview } from '../../interview';
+import { InterviewOptions, Interview, Command } from '../../interview';
 
 export interface InterviewState<S> {
   s: S;
@@ -17,6 +17,7 @@ export interface ICProps<S> {
   modalTemplate: HTMLTemplateElement;
   initialState: InterviewState<S>;
   interviewClass: new (options: InterviewOptions<S>) => Interview<S>;
+  todoIndex?: number;
   now: DateString;
   onStateChange?: (state: InterviewState<S>) => void;
   onTitleChange?: (title: string) => void;
@@ -64,7 +65,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     if (this.props.onStart) {
       this.props.onStart(this.interview);
     }
-    this.interview.execute(this.props.initialState.s).then((finalState) => {
+    this.interview.execute(this.props.initialState.s, this.getTodoCommand()).then((finalState) => {
       if (this.props.onStop) {
         this.props.onStop();
       }
@@ -77,6 +78,21 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       }
       throw err;
     });
+  }
+
+  private getTodoCommand(): Command<S>|undefined {
+    if (!this.interview) {
+      throw new Error('Assertion failure');
+    }
+    const { todoIndex } = this.props;
+    if (todoIndex !== undefined) {
+      const todo = this.interview.getTodos(this.props.initialState.s)[todoIndex];
+      if (!todo || todo.status !== 'available') {
+        throw new Error(`Assertion failure, todo index ${todoIndex} does not exist or is not actionable`);
+      }
+      return todo;
+    }
+    return undefined;
   }
 
   private teardownInterview() {
@@ -145,7 +161,12 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       this.props.initialState.s === this.state.s ||
       this.props.initialState.recording === this.state.recording
     );
+    const todoIndexWasSet = (
+      typeof(this.props.todoIndex) === 'number' &&
+      prevProps.todoIndex === undefined
+    );
     if ((initialStateChanged && !initialStateIsCurrentState) ||
+        todoIndexWasSet ||
         new Date(this.props.now).getTime() !== new Date(prevProps.now).getTime()) {
       this.teardownInterview();
       this.setState({
