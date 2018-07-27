@@ -28,6 +28,9 @@ type ICState<S> = {
   interviewId: number;
 } & InterviewState<S>;
 
+/**
+ * This class wraps an Interview in a React component.
+ */
 export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S>> {
   div: React.RefObject<HTMLDivElement>;
   innerDiv: HTMLDivElement|null = null;
@@ -40,6 +43,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     this.state = { interviewId: 0, ...this.props.initialState };
     this.div = React.createRef();
   }
+
   private setupInterview() {
     if (!this.div.current) {
       throw new Error('Assertion failure, expected component to be mounted!');
@@ -74,6 +78,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       throw err;
     });
   }
+
   private teardownInterview() {
     if (!this.io || !this.recordableIo || !this.interview) {
       throw new Error('Assertion failure!');
@@ -90,6 +95,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       this.innerDiv = null;
     }
   }
+
   @autobind
   private handleBeginRecordingAction(type: IoActionType) {
     if (type === 'ask' || type === 'askMany' || type === 'notify') {
@@ -102,12 +108,14 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       }
     }
   }
+
   @autobind
   private handleTitleChange(title: string) {
     if (this.props.onTitleChange) {
       this.props.onTitleChange(title);
     }
   }
+
   @autobind
   private handleInterviewChange(_: S, s: S) {
     if (!this.recordableIo) {
@@ -118,6 +126,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       recording: this.recordableIo.resetRecording()
     });
   }
+
   private ensureUnchanged(prevProps: ICProps<S>, props: (keyof ICProps<S>)[]) {
     for (let prop of props) {
       if (prevProps[prop] !== this.props[prop]) {
@@ -125,6 +134,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       }
     }
   }
+
   componentDidUpdate(prevProps: ICProps<S>, prevState: ICState<S>) {
     this.ensureUnchanged(prevProps, ['interviewClass', 'modalTemplate']);
     const initialStateChanged = (
@@ -155,12 +165,15 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       this.setupInterview();
     }
   }
+
   componentDidMount() {
     this.setupInterview();
   }
+
   componentWillUnmount() {
     this.teardownInterview();
   }
+
   render() {
     return <div ref={this.div}></div>;
   }
