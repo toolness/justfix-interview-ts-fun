@@ -138,7 +138,7 @@ class App extends React.Component<AppProps, AppState> {
 
   @autobind
   private handleTitleChange(title: string) {
-    document.title = title;
+    document.title = `${title} - ${getISODate(this.state.serState.date)}`;
   }
 
   @autobind
