@@ -3,7 +3,7 @@ import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
 import { getElement } from '../lib/web/util';
-import { FollowUp, Interview } from '../lib/interview';
+import { FollowUp, Interview, Todo } from '../lib/interview';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { InterviewComponent, InterviewState } from '../lib/web/components/interview';
@@ -19,7 +19,11 @@ const INITIAL_APP_STATE: SerializableAppState = {
   version: 3,
   date: new Date(),
   interviewState: {
-    s: {},
+    s: {
+      todos: {
+        rentalHistory: 'available'
+      }
+    },
     recording: [],
   },
 };
@@ -59,6 +63,25 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
     <div className="control">
       <button onClick={props.onClick} className="button">{props.children}</button>
     </div>
+  );
+}
+
+function TodoList(props: { todos: Todo<Tenant>[] }): JSX.Element {
+  // TODO: Um we need to pass the todo back to the interview or something i guess.
+  return (
+    <ol>
+      {props.todos.map(todo => {
+        const button = todo.status === 'available'
+          ? <Button onClick={todo.execute}>Start</Button>
+          : null;
+        return (
+          <li key={todo.name}>
+            {todo.name} - {todo.description}
+            {button}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -151,7 +174,9 @@ class App extends React.Component<AppProps, AppState> {
       isInterviewStopped
      } = this.state;
 
-    const followUps = interview ? interview.getFutureFollowUps(serState.interviewState.s) : [];
+    const tenant: Tenant = serState.interviewState.s;
+    const followUps = interview ? interview.getFutureFollowUps(tenant) : [];
+    const todos = interview ? interview.getTodos(tenant) : [];
 
     return (
       <div className="container">
@@ -168,7 +193,9 @@ class App extends React.Component<AppProps, AppState> {
               onStateChange={this.handleInterviewStateChange}
               onTitleChange={this.handleTitleChange}
             />
-            {isInterviewStopped ? "No more questions for now!" : null}
+            {isInterviewStopped
+              ? (todos.length ? <TodoList todos={todos} /> : "No more questions for now!")
+              : null}
           </div>
           <div className="column">
             {followUps.length ?
