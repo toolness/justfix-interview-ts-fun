@@ -261,13 +261,56 @@ class App extends React.Component<AppProps, AppState> {
   }
 }
 
+interface AppWrapperProps {
+  serializer: LocalStorageSerializer<SerializableAppState>;
+}
+
+class AppWrapper extends React.Component<AppWrapperProps, { hasError: boolean }> {
+  constructor(props: AppWrapperProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  @autobind
+  handleResetClick() {
+    const { serializer } = this.props;
+    serializer.set(serializer.defaultState);
+    window.location.reload();
+  }
+
+  componentDidCatch(error: Error) {
+    this.setState({ hasError: true });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <article className="message is-danger">
+          <div className="message-header">
+            <p>Alas.</p>
+          </div>
+          <div className="message-body">
+            <div className="content">
+              <p>Something bad happened. Maybe reset this app to its factory defaults?</p>
+              <button className="button" onClick={this.handleResetClick}>Reset app</button>
+            </div>
+          </div>
+        </article>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   const modalTemplate = getElement('template', '#modal');
   const mainSection = getElement('section', '#main');
   const serializer = new LocalStorageSerializer('tenantAppState', INITIAL_APP_STATE, INITIAL_APP_STATE.version);
 
   ReactDom.render(
-    <App modalTemplate={modalTemplate} serializer={serializer} />,
+    <AppWrapper serializer={serializer}>
+      <App modalTemplate={modalTemplate} serializer={serializer} />
+    </AppWrapper>,
     mainSection
   );
 });
