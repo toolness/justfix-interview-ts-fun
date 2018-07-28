@@ -67,7 +67,6 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
 }
 
 function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => void }): JSX.Element {
-  // TODO: Um we need to pass the todo back to the interview or something i guess.
   return (
     <ol>
       {props.todos.map((todo, i) => {
