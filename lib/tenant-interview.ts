@@ -207,6 +207,12 @@ export class TenantInterview extends Interview<Tenant> {
       todos.push(this.getRentalHistoryTodo(tenant, tenant.todos.rentalHistory));
     }
 
+    todos.push({
+      name: 'Sue your landlord',
+      status: 'locked',
+      description: 'You can take your landlord to Housing Court and sue them for repairs and harassment. This is called an HP action.'
+    });
+
     return todos;
   }
 }

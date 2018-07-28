@@ -95,6 +95,7 @@ function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => vo
                  : null}
               </footer>
             </div>
+            <br/>
           </li>
         );
       })}
