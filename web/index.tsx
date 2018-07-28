@@ -68,19 +68,34 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
 
 function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => void }): JSX.Element {
   return (
-    <ol>
+    <ul>
       {props.todos.map((todo, i) => {
-        const button = todo.status === 'available'
-          ? <Button onClick={() => props.onClick(i)}>Start</Button>
-          : null;
         return (
           <li key={todo.name}>
-            {todo.name} - {todo.description}
-            {button}
+            <div className="card">
+              <header className="card-header">
+                <p className="card-header-title">
+                  <span className="tag is-light">Step {i + 1}</span>&nbsp;{todo.name}
+                </p>
+              </header>
+              <div className="card-content">
+                <div className="content">
+                  <p>{todo.description}</p>
+                </div>
+              </div>
+              <footer className="card-footer">
+                {todo.status === 'available'
+                 // This should really be a <button> but Bulma doesn't seem to like that.
+                 ? <a onClick={(e) => { e.preventDefault(); props.onClick(i); }}
+                      href="#"
+                      className="card-footer-item">Start</a>
+                 : null}
+              </footer>
+            </div>
           </li>
         );
       })}
-    </ol>
+    </ul>
   );
 }
 
