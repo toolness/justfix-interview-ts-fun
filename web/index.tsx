@@ -69,6 +69,34 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
   );
 }
 
+function iconForTodo<S>(todo: Todo<S>): string|null {
+  switch (todo.status) {
+    case 'available':
+    return null;
+
+    case 'complete':
+    return 'fa-check-circle';
+
+    case 'blocked':
+    return 'fa-spinner';
+
+    case 'locked':
+    return 'fa-lock';
+  }
+}
+
+function TodoIcon<S>(props: { todo: Todo<S> }): JSX.Element|null {
+  const icon = iconForTodo(props.todo);
+
+  if (!icon) return null;
+
+  return (
+    <span className="icon">
+      <i className={`fas ${icon}`}></i>
+    </span>
+  );
+}
+
 function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => void }): JSX.Element {
   return (
     <ul>
@@ -80,6 +108,9 @@ function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => vo
                 <p className="card-header-title">
                   <span className="tag is-light">Step {i + 1}</span>&nbsp;{todo.name}
                 </p>
+                <span className="card-header-icon" style={{cursor: 'default'} /* WTF Bulma? */}>
+                  <TodoIcon todo={todo} />
+                </span>
               </header>
               <div className="card-content">
                 <div className="content">
