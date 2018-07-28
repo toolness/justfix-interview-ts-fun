@@ -86,7 +86,7 @@ function TodoIcon<S>(props: { todo: Todo<S> }): JSX.Element|null {
   );
 }
 
-function TodoList(props: { todos: Todo<Tenant>[], onClick: (index: number) => void }): JSX.Element {
+function TodoList<S>(props: { todos: Todo<S>[], onClick: (index: number) => void }): JSX.Element {
   return (
     <ul>
       {props.todos.map((todo, i) => {
