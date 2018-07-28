@@ -144,7 +144,7 @@ export class TenantInterview extends Interview<Tenant> {
     if (rentalHistory && rentalHistory.status === 'requested') {
       followUps.push({
         date: rentalHistory.nextReminder,
-        name: `Your rental history was requested on ${getFriendlyDate(rentalHistory.dateRequested)}.`,
+        name: `Rental history`,
         execute: async () => ({
           ...tenant,
           rentalHistory: await this.followupRentalHistory(rentalHistory)

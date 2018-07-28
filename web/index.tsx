@@ -37,7 +37,10 @@ function FollowUpsPanel<S>(props: {followUps: FollowUp<S>[], now: DateString}): 
         const daysStr = `${days} ${days === 1 ? ' day' : ' days'}`;
         return (
           <div key={followUp.name} className="panel-block">
-            {followUp.name} We'll follow-up in {daysStr}.
+            <div className="columns" style={{width: '100%'} /* Bulma is so confusing! */}>
+              <div className="column is-two-thirds">{followUp.name}</div>
+              <div className="column">{daysStr}</div>
+            </div>
           </div>
         );
       })}
