@@ -1,4 +1,4 @@
-import { DateString, getDaysAway, getISODate } from '../lib/util';
+import { DateString, getDaysAway, getISODate, mapString } from '../lib/util';
 import { TenantInterview } from '../lib/tenant-interview';
 import { Tenant } from '../lib/tenant';
 import { LocalStorageSerializer } from '../lib/web/serializer';
@@ -69,24 +69,13 @@ function Button(props: {onClick: () => void, children: string}): JSX.Element {
   );
 }
 
-function iconForTodo<S>(todo: Todo<S>): string|null {
-  switch (todo.status) {
-    case 'available':
-    return null;
-
-    case 'complete':
-    return 'fa-check-circle';
-
-    case 'blocked':
-    return 'fa-spinner';
-
-    case 'locked':
-    return 'fa-lock';
-  }
-}
-
 function TodoIcon<S>(props: { todo: Todo<S> }): JSX.Element|null {
-  const icon = iconForTodo(props.todo);
+  const icon = mapString(props.todo.status, {
+    available: null,
+    complete: 'fa-check-circle',
+    blocked: 'fa-spinner',
+    locked: 'fa-lock'
+  });
 
   if (!icon) return null;
 

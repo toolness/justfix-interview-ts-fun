@@ -54,3 +54,11 @@ export function sleep(milliseconds: number): Promise<void> {
     setTimeout(resolve, milliseconds);
   });
 }
+
+/**
+ * This is a simple helper that provides a type-safe way to
+ * map a string value to another value.
+ */
+export function mapString<T extends string, U>(key: T, map: { [K in T]: U }): U {
+  return map[key];
+}
