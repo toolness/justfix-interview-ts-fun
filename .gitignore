@@ -2,5 +2,5 @@ node_modules/
 dist/
 web/bundle.js
 console/bundle.js
-.tenant-interview-state.json
-tenant.schema.json
+.console-app-state.json
+console-app-state.schema.json

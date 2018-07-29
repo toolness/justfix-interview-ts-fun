@@ -35,7 +35,7 @@ interface SerializableConsoleAppState {
 
 const SCRIPT = process.argv[1];
 
-const STATE_FILE = '.tenant-interview-state.json';
+const STATE_FILE = '.console-app-state.json';
 
 const INITIAL_STATE: SerializableConsoleAppState = {
   recording: [],
