@@ -5,8 +5,11 @@ import { Question, ValidationError } from '../question';
 import { PhotoQuestion } from './photo';
 import { Photo } from '../util';
 import { EventEmitter } from 'events';
+import { Recorder } from '../recorder';
 
 const NOTIFY_DELAY_MS = 3000;
+
+export type TextIOAction = 'writeLine'|'question';
 
 /**
  * This represents a primarily text-based IO system.
@@ -17,8 +20,25 @@ interface TextIO {
   close(): void;
 }
 
+export class RecordableTextIO implements TextIO {
+  constructor(private readonly delegate: TextIO, readonly recorder: Recorder<TextIOAction> = new Recorder()) {
+  }
+
+  async writeLine(text: string): Promise<void> {
+    return this.recorder.playbackOrRecord('writeLine', () => this.delegate.writeLine(text));
+  }
+
+  question(query: string): Promise<string> {
+    return this.recorder.playbackOrRecord('question', () => this.delegate.question(query));
+  }
+
+  close() {
+    this.delegate.close();
+  }
+}
+
 /** Standard text i/o that uses readline/stdout. */
-export class ConsoleIO extends EventEmitter implements TextIO {
+export class ConsoleIO implements TextIO {
   private readonly outputStream: NodeJS.WriteStream;
   private readonly rl: readline.ReadLine;
 
@@ -27,7 +47,6 @@ export class ConsoleIO extends EventEmitter implements TextIO {
    * @param output The stream to which output will be written. Defaults to stdout.
    */
   constructor(rl?: readline.ReadLine, outputStream?: NodeJS.WriteStream) {
-    super();
     this.outputStream = outputStream || process.stdout;
     this.rl = rl || readline.createInterface({
       input: process.stdin,

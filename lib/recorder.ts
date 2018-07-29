@@ -33,12 +33,15 @@ export class Recorder<ActionType> extends EventEmitter {
       this.emit('begin-recording-action', type);
       const result = await record();
       this.newRecording.push([type, result]);
+      this.emit('end-recording-action', type);
       return result;
     }
   }
 }
 
+type RecorderEvent = 'begin-recording-action'|'end-recording-action';
+
 export interface Recorder<ActionType> {
-  on(event: 'begin-recording-action', listener: (type: ActionType) => void): this;
-  emit(event: 'begin-recording-action', type: ActionType): boolean;
+  on(event: RecorderEvent, listener: (type: ActionType) => void): this;
+  emit(event: RecorderEvent, type: ActionType): boolean;
 }
