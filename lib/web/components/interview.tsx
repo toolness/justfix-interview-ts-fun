@@ -4,13 +4,14 @@ import { WebInterviewIO } from '../io';
 import { ModalBuilder } from '../modal';
 import { DateString } from '../../util';
 import { IOCancellationError } from '../../interview-io';
-import { RecordedAction, RecordableInterviewIO, IoActionType } from '../../recordable-io';
+import { RecordableInterviewIO, IoActionType } from '../../recordable-io';
 import { makeElement } from '../util';
 import { InterviewOptions, Interview, Command } from '../../interview';
+import { RecordedAction } from '../../recorder';
 
 export interface InterviewState<S> {
   s: S;
-  recording: RecordedAction[];
+  recording: RecordedAction<IoActionType>[];
 }
 
 export interface ICProps<S> {
@@ -56,7 +57,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     this.io = new WebInterviewIO(this.innerDiv, new ModalBuilder(this.props.modalTemplate));
     this.io.on('title', this.handleTitleChange);
     this.recordableIo = new RecordableInterviewIO(this.io, this.props.initialState.recording);
-    this.recordableIo.on('begin-recording-action', this.handleBeginRecordingAction);
+    this.recordableIo.recorder.on('begin-recording-action', this.handleBeginRecordingAction);
     this.interview = new this.props.interviewClass({
       io: this.recordableIo,
       now: new Date(this.props.now)
@@ -118,7 +119,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
       if (!this.recordableIo) {
         throw new Error('Assertion failure!');
       }
-      const recording = this.recordableIo.getRecording();
+      const recording = this.recordableIo.recorder.getRecording();
       if (recording.length > this.state.recording.length) {
         this.setState({ recording });
       }
@@ -139,7 +140,7 @@ export class InterviewComponent<S> extends React.Component<ICProps<S>, ICState<S
     }
     this.setState({
       s,
-      recording: this.recordableIo.resetRecording()
+      recording: this.recordableIo.recorder.resetRecording()
     });
   }
 
