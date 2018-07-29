@@ -2,9 +2,9 @@
     "json.schemas": [
         {
             "fileMatch": [
-                ".tenant-interview-state.json"
+                ".console-app-state.json"
             ],
-            "url": "./tenant.schema.json"
+            "url": "./console-app-state.schema.json"
         }
     ]
 }
