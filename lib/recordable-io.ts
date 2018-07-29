@@ -15,7 +15,7 @@ export type IoActionType = 'ask'|'askMany'|'notify'|'setStatus'|'sleep';
 export class RecordableInterviewIO extends InterviewIO {
   readonly recorder: Recorder<IoActionType>;
 
-  constructor(readonly delegate: InterviewIO, private readonly recording: RecordedAction<IoActionType>[] = []) {
+  constructor(readonly delegate: InterviewIO, recording: RecordedAction<IoActionType>[] = []) {
     super();
     this.recorder = new Recorder(recording);
   }
