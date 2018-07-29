@@ -10,8 +10,26 @@ import { RecordableInterviewIO, IoActionType } from '../lib/recordable-io';
 import { Recorder, RecordedAction } from '../lib/recorder';
 
 interface SerializableConsoleAppState {
+  /**
+   * Input that has been entered so far at a fairly high level,
+   * before a formal interview state change has occurred.
+   * 
+   * This can be used to replay the interview at a later time, to
+   * get back to the place the user was at when they were last
+   * using the app.
+   */
   recording: RecordedAction<IoActionType>[];
+  /**
+   * Input that has been entered at the most granular level, e.g.
+   * as part of a set of questions that would be answered in a
+   * single form on the web version of the interview.
+   * 
+   * This can be used to replay the interview at a later time, to
+   * get back to the place the user was at when they were last
+   * using the app.
+   */
   textRecording: RecordedAction<TextIOAction>[];
+  /** The state of the interview. */
   tenant: Tenant
 }
 
