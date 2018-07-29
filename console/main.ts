@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { addDays } from '../lib/util';
 import { Tenant } from '../lib/tenant';
 import { TenantInterview } from '../lib/tenant-interview';
-import { ReadlineInterviewIO } from '../lib/console/readline-io';
+import { TextInterviewIO } from '../lib/console/readline-io';
 import { FileSerializer } from '../lib/console/serializer';
 
 const SCRIPT = process.argv[1];
@@ -50,7 +50,7 @@ if (!module.parent) {
     now = addDays(now, parseInt(argv.days));
   }
 
-  const io = new ReadlineInterviewIO();
+  const io = new TextInterviewIO();
   const interview = new TenantInterview({ io, now });
   const serializer = new FileSerializer(STATE_FILE, INITIAL_STATE);
   interview.on('change', (_, tenant) => {
