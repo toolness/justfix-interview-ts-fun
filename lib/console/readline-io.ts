@@ -80,7 +80,7 @@ export class TextInterviewIO extends InterviewIO {
     this.isAsking = false;
 
     if (result instanceof ValidationError) {
-      this.textIO.writeLine(result.message);
+      await this.textIO.writeLine(result.message);
       return this.ask(question);
     }
 
@@ -98,12 +98,12 @@ export class TextInterviewIO extends InterviewIO {
   }
 
   async notify(text: string) {
-    this.textIO.writeLine(`\n${text}\n`);
+    await this.textIO.writeLine(`\n${text}\n`);
     await this.sleep(NOTIFY_DELAY_MS);
   }
 
   async setStatus(text: string) {
-    this.textIO.writeLine(text);
+    await this.textIO.writeLine(text);
   }
 
   close() {
