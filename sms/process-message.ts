@@ -8,6 +8,8 @@ import { SmsIOAction, SmsIO, SmsIsAwaitingAnswerError } from '../lib/sms/sms-io'
 import { SmsPostBody } from '../lib/sms/post-body';
 import { Storage } from '../lib/sms/storage';
 
+const RESET_CMD = "reset";
+
 export interface SmsAppState {
   phoneNumber: string;
   status: 'uninitialized'|'started';
@@ -44,12 +46,15 @@ export async function processMessage(msg: SmsPostBody, storage: Storage<SmsAppSt
     state = { ...state, ...updates };
   }
 
-  if (text === 'reset' && state.status === 'started') {
+  if (text === RESET_CMD && state.status === 'started') {
     setState(createInitialState(msg.From));
   }
 
   if (state.status === 'uninitialized') {
-    twiml.message('Welcome to JustFix interview fun!');
+    twiml.message(
+      `Welcome to JustFix interview fun! Text "${RESET_CMD}" ` +
+      `at any time to reset this interview.`
+    );
     text = null;
     setState({ status: 'started' });
   }
