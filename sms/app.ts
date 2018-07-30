@@ -12,6 +12,7 @@ interface SmsPostBody {
   ToState: string,            // e.g. 'NY'
   SmsMessageSid: string,
   NumMedia: string,           // e.g. '0'
+  MediaUrl0?: string,         // e.g. 'https://api.twilio.com/2010-04-01/...'
   ToCity: string,             // e.g. 'BROOKLYN'
   FromZip: string,            // e.g. '94107'
   SmsSid: string,
@@ -33,7 +34,8 @@ app.post('/sms', bodyParser.urlencoded({ extended: true }), (req, res) => {
   // TODO: Verify that the POST is actually coming from Twilio.
   const body = req.body as SmsPostBody;
   const twiml = new twilio.TwimlResponse();
-  twiml.message(`Well "${body.Body}" right back atcha, ${body.From}!`);
+  const text = body.MediaUrl0 ? body.MediaUrl0 : body.Body;
+  twiml.message(`Well "${text}" right back atcha, ${body.From}!`);
 
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
