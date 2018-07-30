@@ -58,6 +58,13 @@ a phone number on Twilio.
 Once you've got everything hooked up, send
 a SMS with the text "hi" to your Twilio number.
 
+For more options, including simulating SMS messages
+during development, run:
+
+```
+node sms/bundle.js --help
+```
+
 ## Development
 
 Aside from Node JS, this project uses [TypeScript][], so

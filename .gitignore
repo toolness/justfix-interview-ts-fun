@@ -6,3 +6,4 @@ sms/bundle.js
 .console-app-state.json
 console-app-state.schema.json
 .sms-app-state.json
+.env
