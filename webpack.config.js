@@ -54,4 +54,20 @@ const smsConfig = {
   }
 };
 
-module.exports = [ webConfig, consoleConfig, smsConfig ];
+const smsLambdaConfig = {
+  ...commonOptions,
+  target: 'node',
+  entry: './sms/lambda.ts',
+  devtool: 'inline-source-map',
+  mode: 'development',
+  externals: [nodeExternals()],
+  output: {
+    filename: 'lambda.bundle.js',
+    path: path.resolve(__dirname, 'sms'),
+    library: "handler",
+    libraryExport: "default",
+    libraryTarget: "commonjs"
+  }
+};
+
+module.exports = [ webConfig, consoleConfig, smsConfig, smsLambdaConfig ];
