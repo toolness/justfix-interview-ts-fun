@@ -80,23 +80,24 @@ async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
   const serializer = new FileSerializer(`.sms${msg.From}.json`, createInitialState(msg.From));
   let state = serializer.get();
 
+  function setState(updates: Partial<SmsAppState>) {
+    state = { ...state, ...updates };
+  }
+
   if (text === 'reset' && state.status === 'started') {
-    state = { ...serializer.defaultState };
+    setState(serializer.defaultState);
   }
 
   if (state.status === 'uninitialized') {
     twiml.message('Welcome to JustFix interview fun!');
     text = null;
-    state = { ...state, status: 'started' };
+    setState({ status: 'started' });
   }
 
   const now = new Date();
   const smsIo = new SmsIO(twiml, new Recorder(state.askedRecording), text);
   smsIo.recorder.on('end-recording-action', action => {
-    state = {
-      ...state,
-      askedRecording: smsIo.recorder.getRecording()
-    };
+    setState({ askedRecording: smsIo.recorder.getRecording() });
   });
 
   const recordableTextIo = new RecordableTextIO(
@@ -104,42 +105,29 @@ async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
     new Recorder(state.textRecording)
   );
   recordableTextIo.recorder.on('begin-recording-action', action => {
-    state = {
-      ...state,
-      textRecording: recordableTextIo.recorder.getRecording(),
-    };
+    setState({ textRecording: recordableTextIo.recorder.getRecording() });
   });
   recordableTextIo.recorder.on('end-recording-action', action => {
-    state = {
-      ...state,
-      askedRecording: smsIo.recorder.resetRecording(),
-    };
+    setState({ askedRecording: smsIo.recorder.resetRecording() });
   });
 
   const io = new TextInterviewIO(recordableTextIo);
   const recordableIo = new RecordableInterviewIO(io, state.recording);
   recordableIo.recorder.on('begin-recording-action', action => {
-    state = {
-      ...state,
-      recording: recordableIo.recorder.getRecording(),
-    };
+    setState({ recording: recordableIo.recorder.getRecording() });
   });
   recordableIo.recorder.on('end-recording-action', action => {
-    state = {
-      ...state,
-      textRecording: recordableTextIo.recorder.resetRecording(),
-    };
+    setState({ textRecording: recordableTextIo.recorder.resetRecording() });
   });
 
   const interview = new TenantInterview({ io: recordableIo, now });
   interview.on('change', (_, tenant: Tenant) => {
-    state = {
-      ...state,
+    setState({
       askedRecording: smsIo.recorder.resetRecording(),
       textRecording: recordableTextIo.recorder.resetRecording(),
       recording: recordableIo.recorder.resetRecording(),
       tenant
-    };
+    });
   });
 
   try {
