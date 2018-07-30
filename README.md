@@ -20,7 +20,7 @@ npm install
 npm run watch
 ```
 
-Now you can run either the console or web version of
+Now you can run either the console, web, or SMS version of
 the interview.
 
 ### Console front-end
@@ -39,6 +39,24 @@ You can also pass `--help` for more information.
 The `npm run watch` command also launches a web server, so
 to visit the web front-end, open your browser to
 http://localhost:8080.
+
+### SMS front-end
+
+To use the SMS version of the interview, open
+a separate terminal and run:
+
+```
+npm run sms
+```
+
+This will start a server on port 8081.  You will
+want to point Twilio's incoming message webhook
+to the `/sms` path on this server, probably via
+a proxy like ngrok. This will also require buying
+a phone number on Twilio.
+
+Once you've got everything hooked up, send
+a SMS with the text "hi" to your Twilio number.
 
 ## Development
 

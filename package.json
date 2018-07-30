@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "schema": "typescript-json-schema tsconfig.json SerializableConsoleAppState > console-app-state.schema.json",
-    "serve": "nodemon --watch sms sms/bundle.js",
+    "sms": "nodemon --watch sms sms/bundle.js",
     "build": "webpack",
     "watch": "concurrently --kill-others \"http-server web -s\" \"webpack --watch\"",
     "deploy": "webpack && gh-pages -d web"
