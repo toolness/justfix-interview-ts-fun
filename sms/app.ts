@@ -7,6 +7,7 @@ const PORT = parseInt(process.env['PORT'] || '8081');
 const app = express();
 
 app.post('/sms', (req, res) => {
+  // TODO: Verify that the POST is actually coming from Twilio.
   const twiml = new twilio.TwimlResponse();
   twiml.message('um hello there i suppose?!');
 
