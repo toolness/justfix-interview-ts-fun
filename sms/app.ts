@@ -81,67 +81,65 @@ async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
   let state = serializer.get();
 
   if (text === 'reset' && state.status === 'started') {
-    serializer.set(serializer.defaultState);
-    state = serializer.get();
+    state = { ...serializer.defaultState };
   }
 
   if (state.status === 'uninitialized') {
     twiml.message('Welcome to JustFix interview fun!');
     text = null;
-    serializer.set({ ...state, status: 'started' });
-    state = serializer.get();
+    state = { ...state, status: 'started' };
   }
 
   const now = new Date();
-  const smsIo = new SmsIO(twiml, new Recorder(serializer.get().askedRecording), text);
+  const smsIo = new SmsIO(twiml, new Recorder(state.askedRecording), text);
   smsIo.recorder.on('end-recording-action', action => {
-    serializer.set({
-      ...serializer.get(),
+    state = {
+      ...state,
       askedRecording: smsIo.recorder.getRecording()
-    });
+    };
   });
 
   const recordableTextIo = new RecordableTextIO(
     smsIo,
-    new Recorder(serializer.get().textRecording)
+    new Recorder(state.textRecording)
   );
   recordableTextIo.recorder.on('begin-recording-action', action => {
-    serializer.set({
-      ...serializer.get(),
+    state = {
+      ...state,
       textRecording: recordableTextIo.recorder.getRecording(),
-    });
+    };
   });
   recordableTextIo.recorder.on('end-recording-action', action => {
-    serializer.set({
-      ...serializer.get(),
+    state = {
+      ...state,
       askedRecording: smsIo.recorder.resetRecording(),
-    });
+    };
   });
 
   const io = new TextInterviewIO(recordableTextIo);
-  const recordableIo = new RecordableInterviewIO(io, serializer.get().recording);
+  const recordableIo = new RecordableInterviewIO(io, state.recording);
   recordableIo.recorder.on('begin-recording-action', action => {
-    serializer.set({
-      ...serializer.get(),
+    state = {
+      ...state,
       recording: recordableIo.recorder.getRecording(),
-    });
+    };
   });
   recordableIo.recorder.on('end-recording-action', action => {
-    serializer.set({
-      ...serializer.get(),
+    state = {
+      ...state,
       textRecording: recordableTextIo.recorder.resetRecording(),
-    });
+    };
   });
 
   const interview = new TenantInterview({ io: recordableIo, now });
   interview.on('change', (_, tenant: Tenant) => {
-    serializer.set({
-      ...serializer.get(),
+    state = {
+      ...state,
       askedRecording: smsIo.recorder.resetRecording(),
       textRecording: recordableTextIo.recorder.resetRecording(),
       recording: recordableIo.recorder.resetRecording(),
       tenant
-    });
+    };
   });
 
   try {
@@ -153,6 +151,8 @@ async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
       throw e;
     }
   }
+
+  serializer.set(state);
 
   return twiml;
 }
