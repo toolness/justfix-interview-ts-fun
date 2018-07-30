@@ -44,8 +44,6 @@ PHONENUMBER is the phone number of the sender.
 You can edit or delete this to change the state of the interview.
 `.trim();
 
-const app = express();
-
 interface SmsAppState {
   phoneNumber: string;
   status: 'uninitialized'|'started';
@@ -72,7 +70,6 @@ function createInitialState(phoneNumber: string): SmsAppState {
     }
   };
 };
-
 
 async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
   let text: string|null = msg.MediaUrl0 ? msg.MediaUrl0 : msg.Body;
@@ -149,13 +146,19 @@ function showHelp() {
   console.log(HELP_TEXT);
 }
 
-app.post('/sms', bodyParser.urlencoded({ extended: true }), async (req, res) => {
-  // TODO: Verify that the POST is actually coming from Twilio.
-  const twiml = await processMessage(req.body as SmsPostBody);
+function createApp(): express.Application {
+  const app = express();
 
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
-});
+  app.post('/sms', bodyParser.urlencoded({ extended: true }), async (req, res) => {
+    // TODO: Verify that the POST is actually coming from Twilio.
+    const twiml = await processMessage(req.body as SmsPostBody);
+  
+    res.writeHead(200, {'Content-Type': 'text/xml'});
+    res.end(twiml.toString());
+  });
+  
+  return app;
+}
 
 async function simulate(argv: minimist.ParsedArgs) {
   if (argv._.length === 0) {
@@ -176,7 +179,7 @@ if (!module.parent) {
   } else if (argv._[0] === 'simulate') {
     simulate({ ...argv, _: argv._.slice(1) });
   } else if (argv._[0] === 'serve') {
-    http.createServer(app).listen(PORT, () => {
+    http.createServer(createApp()).listen(PORT, () => {
       console.log(`Express server listening on port ${PORT}.`);
     });
   } else {
