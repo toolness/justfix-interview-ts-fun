@@ -14,7 +14,7 @@ export type TextIOAction = 'writeLine'|'question';
 /**
  * This represents a primarily text-based IO system.
  */
-interface TextIO {
+export interface TextIO {
   writeLine(text: string): Promise<void>;
   question(query: string): Promise<string>;
   close(): void;
