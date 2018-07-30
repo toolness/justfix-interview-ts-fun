@@ -4,12 +4,13 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import * as twilio from 'twilio';
 import { Tenant } from '../lib/tenant';
-import { TextIOAction, TextIO, TextInterviewIO, RecordableTextIO } from '../lib/console/readline-io';
+import { TextIOAction, TextInterviewIO, RecordableTextIO } from '../lib/console/readline-io';
 import { RecordedAction, Recorder } from '../lib/recorder';
 import { IoActionType, RecordableInterviewIO } from '../lib/recordable-io';
 import { FileSerializer } from '../lib/console/serializer';
 import { TenantInterview } from '../lib/tenant-interview';
-import { IOCancellationError } from '../lib/interview-io';
+import { SmsPostBody } from '../lib/sms/post-body';
+import { SmsIOAction, SmsIO, SmsIsAwaitingAnswerError } from '../lib/sms/sms-io';
 
 const PORT = parseInt(process.env['PORT'] || '8081');
 
@@ -45,38 +46,12 @@ You can edit or delete this to change the state of the interview.
 
 const app = express();
 
-interface SmsPostBody {
-  From: string,               // e.g. '+14151234567'
-  MediaUrl0?: string,         // e.g. 'https://api.twilio.com/2010-04-01/...'
-  Body: string,               // e.g. 'hello'
-}
-
-interface FullSmsPostBody extends SmsPostBody {
-  ToCountry: string,          // e.g. 'US'
-  ToState: string,            // e.g. 'NY'
-  SmsMessageSid: string,
-  NumMedia: string,           // e.g. '0'
-  ToCity: string,             // e.g. 'BROOKLYN'
-  FromZip: string,            // e.g. '94107'
-  SmsSid: string,
-  FromState: string,          // e.g. 'CA'
-  SmsStatus: string,          // e.g. 'received'
-  FromCity: string,           // e.g. 'SAN FRANCISCO'
-  FromCountry: string,        // e.g. 'US'
-  To: string,                 // e.g. '+17181234567'
-  ToZip: string,              // e.g. '11418'
-  NumSegments: string,        // e.g. '1'
-  MessageSid: string,
-  AccountSid: string,
-  ApiVersion: string,         // e.g. '2010-04-01'
-}
-
 interface SmsAppState {
   phoneNumber: string;
   status: 'uninitialized'|'started';
   recording: RecordedAction<IoActionType>[];
   textRecording: RecordedAction<TextIOAction>[];
-  askedRecording: RecordedAction<'askQuestion'>[];
+  askedRecording: RecordedAction<SmsIOAction>[];
   tenant: Tenant;
 }
 
@@ -98,36 +73,6 @@ function createInitialState(phoneNumber: string): SmsAppState {
   };
 };
 
-class SmsIO implements TextIO {
-  private text: string|null;
-
-  constructor(private readonly twiml: twilio.TwimlResponse, readonly recorder: Recorder<'askQuestion'>, text: string|null) {
-    this.text = text;
-  }
-
-  async writeLine(text: string): Promise<void> {
-    this.twiml.message(text);
-  }
-
-  async question(query: string): Promise<string> {
-    this.recorder.playbackOrRecord('askQuestion', async () => {
-      this.twiml.message(query);
-      return null;
-    });
-    const text = this.text;
-    if (text !== null) {
-      this.text = null;
-      return text;
-    }
-    throw new SmsIsAwaitingAnswerError(this);
-  }
-
-  close(): void {
-  }
-}
-
-class SmsIsAwaitingAnswerError extends IOCancellationError {
-}
 
 async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
   let text: string|null = msg.MediaUrl0 ? msg.MediaUrl0 : msg.Body;
