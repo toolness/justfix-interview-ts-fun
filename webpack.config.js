@@ -39,4 +39,16 @@ const consoleConfig = {
   }
 };
 
-module.exports = [ webConfig, consoleConfig ];
+const smsConfig = {
+  ...commonOptions,
+  target: 'node',
+  entry: './sms/app.ts',
+  devtool: 'inline-source-map',
+  mode: 'development',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'sms')
+  }
+};
+
+module.exports = [ webConfig, consoleConfig, smsConfig ];
