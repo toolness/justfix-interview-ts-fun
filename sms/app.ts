@@ -80,18 +80,20 @@ function createApp(): express.Application {
   return app;
 }
 
-async function simulate(argv: minimist.ParsedArgs): Promise<void> {
-  if (argv._.length === 0) {
+async function simulate(body: string, argv: minimist.ParsedArgs): Promise<number> {
+  if (!body.trim()) {
     console.log('Please provide a message body.');
-    process.exit(1);
+    return 1;
   }
   const storage = getStorage();
   const twiml = await processMessage({
     From: (argv.from as string || DEFAULT_SIMULATE_NUMBER),
-    Body: argv._.join(' ')
+    Body: body
   }, storage);
   await storage.close();
   console.log(twiml.toString());
+
+  return 0;
 }
 
 if (!module.parent) {
@@ -100,7 +102,8 @@ if (!module.parent) {
   if (argv.h || argv.help) {
     showHelp();
   } else if (cmd === 'simulate') {
-    simulate({ ...argv, _: argv._.slice(1) }).catch(e => {
+    const body = argv._.slice(1).join(' ');
+    simulate(body, argv).then(process.exit).catch(e => {
       console.log(e.stack);
       process.exit(1);
     });
