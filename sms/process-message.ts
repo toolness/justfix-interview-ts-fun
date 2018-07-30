@@ -3,12 +3,12 @@ import { Tenant } from '../lib/tenant';
 import { TextIOAction, TextInterviewIO, RecordableTextIO } from '../lib/console/readline-io';
 import { RecordedAction, Recorder } from '../lib/recorder';
 import { IoActionType, RecordableInterviewIO } from '../lib/recordable-io';
-import { FileSerializer } from '../lib/console/serializer';
 import { TenantInterview } from '../lib/tenant-interview';
 import { SmsIOAction, SmsIO, SmsIsAwaitingAnswerError } from '../lib/sms/sms-io';
 import { SmsPostBody } from '../lib/sms/post-body';
+import { Storage } from '../lib/sms/storage';
 
-interface SmsAppState {
+export interface SmsAppState {
   phoneNumber: string;
   status: 'uninitialized'|'started';
   recording: RecordedAction<IoActionType>[];
@@ -35,18 +35,17 @@ function createInitialState(phoneNumber: string): SmsAppState {
   };
 };
 
-export async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResponse> {
+export async function processMessage(msg: SmsPostBody, storage: Storage<SmsAppState>): Promise<twilio.TwimlResponse> {
   let text: string|null = msg.MediaUrl0 ? msg.MediaUrl0 : msg.Body;
   const twiml = new twilio.TwimlResponse();
-  const serializer = new FileSerializer(`.sms${msg.From}.json`, createInitialState(msg.From));
-  let state = serializer.get();
+  let state = (await storage.get(msg.From)) || createInitialState(msg.From);
 
   function setState(updates: Partial<SmsAppState>) {
     state = { ...state, ...updates };
   }
 
   if (text === 'reset' && state.status === 'started') {
-    setState(serializer.defaultState);
+    setState(createInitialState(msg.From));
   }
 
   if (state.status === 'uninitialized') {
@@ -101,7 +100,7 @@ export async function processMessage(msg: SmsPostBody): Promise<twilio.TwimlResp
     }
   }
 
-  serializer.set(state);
+  await storage.set(msg.From, state);
 
   return twiml;
 }

@@ -3,11 +3,14 @@ import minimist from 'minimist';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { SmsPostBody } from '../lib/sms/post-body';
-import { processMessage } from './process-message';
+import { processMessage, SmsAppState } from './process-message';
+import { Storage, FileStorage } from '../lib/sms/storage';
 
 const PORT = parseInt(process.env['PORT'] || '8081');
 
 const SCRIPT = process.argv[1];
+
+const STATE_FILE = '.sms-app-state.json';
 
 const DEFAULT_SIMULATE_NUMBER = '+5551234567';
 
@@ -32,13 +35,16 @@ Global arguments:
 
   --help         Show this help text.
 
-The current interview state is stored in ".sms+PHONENUMBER.json", where
-PHONENUMBER is the phone number of the sender.
-You can edit or delete this to change the state of the interview.
+The current interview states are stored in "${STATE_FILE}".
+You can edit or delete this to change the state of the interviews.
 `.trim();
 
 function showHelp() {
   console.log(HELP_TEXT);
+}
+
+function getStorage(): Storage<SmsAppState> {
+  return new FileStorage(STATE_FILE);
 }
 
 function createApp(): express.Application {
@@ -46,7 +52,7 @@ function createApp(): express.Application {
 
   app.post('/sms', bodyParser.urlencoded({ extended: true }), async (req, res) => {
     // TODO: Verify that the POST is actually coming from Twilio.
-    const twiml = await processMessage(req.body as SmsPostBody);
+    const twiml = await processMessage(req.body as SmsPostBody, getStorage());
   
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(twiml.toString());
@@ -63,7 +69,7 @@ async function simulate(argv: minimist.ParsedArgs) {
   const twiml = await processMessage({
     From: (argv.from as string || DEFAULT_SIMULATE_NUMBER),
     Body: argv._.join(' ')
-  });
+  }, getStorage());
   console.log(twiml.toString());
 }
 

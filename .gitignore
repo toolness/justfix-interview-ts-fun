@@ -5,4 +5,4 @@ console/bundle.js
 sms/bundle.js
 .console-app-state.json
 console-app-state.schema.json
-.sms*.json
+.sms-app-state.json
