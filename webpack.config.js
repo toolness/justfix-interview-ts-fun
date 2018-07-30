@@ -1,4 +1,5 @@
 const path = require('path');
+var nodeExternals = require('webpack-node-externals');
 
 const commonOptions = {
   module: {
@@ -33,10 +34,24 @@ const consoleConfig = {
   entry: './console/main.ts',
   devtool: 'inline-source-map',
   mode: 'development',
+  externals: [nodeExternals()],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'console')
   }
 };
 
-module.exports = [ webConfig, consoleConfig ];
+const smsConfig = {
+  ...commonOptions,
+  target: 'node',
+  entry: './sms/app.ts',
+  devtool: 'inline-source-map',
+  mode: 'development',
+  externals: [nodeExternals()],
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'sms')
+  }
+};
+
+module.exports = [ webConfig, consoleConfig, smsConfig ];
