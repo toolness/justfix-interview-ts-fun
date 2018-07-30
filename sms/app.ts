@@ -7,7 +7,9 @@ import { SmsPostBody } from '../lib/sms/post-body';
 import { processMessage, SmsAppState } from './process-message';
 import { Storage, FileStorage, MongoStorage } from '../lib/sms/storage';
 
-dotenv.config();
+const DOTENV_FILE = '.env';
+
+dotenv.config({ path: DOTENV_FILE });
 
 const DEFAULT_PORT = '8081';
 
@@ -48,6 +50,8 @@ Environment variables:
                  filesystem).
   PORT           The port to run the webhook server on. Defaults to
                  ${DEFAULT_PORT}.
+
+Environment variables can also be placed in "${DOTENV_FILE}".
 
 By default, the current interview states are stored in "${STATE_FILE}".
 You can edit or delete this to change the state of the interviews.
