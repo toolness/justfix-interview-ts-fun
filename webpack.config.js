@@ -1,6 +1,15 @@
 const path = require('path');
 var nodeExternals = require('webpack-node-externals');
 
+function moduleExists(name) {
+  try {
+    require(name);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 const commonOptions = {
   module: {
     rules: [
@@ -54,4 +63,28 @@ const smsConfig = {
   }
 };
 
-module.exports = [ webConfig, consoleConfig, smsConfig ];
+const smsLambdaConfig = {
+  ...commonOptions,
+  target: 'node',
+  entry: './sms/lambda.ts',
+  devtool: 'inline-source-map',
+  mode: 'development',
+  externals: [nodeExternals()],
+  output: {
+    filename: 'lambda.bundle.js',
+    path: path.resolve(__dirname, 'sms'),
+    library: "handler",
+    libraryExport: "default",
+    libraryTarget: "commonjs"
+  }
+};
+
+const configs = [
+  webConfig, consoleConfig, smsConfig
+];
+
+if (moduleExists('aws-sdk')) {
+  configs.push(smsLambdaConfig);
+}
+
+module.exports = configs;

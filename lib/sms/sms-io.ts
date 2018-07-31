@@ -1,8 +1,7 @@
-import * as twilio from 'twilio';
-
 import { IOCancellationError } from "../interview-io";
 import { TextIO } from "../console/readline-io";
 import { Recorder } from "../recorder";
+import SimpleTwimlResponse from './simple-twiml-response';
 
 export type SmsIOAction = 'askQuestion';
 
@@ -19,7 +18,7 @@ export type SmsIOAction = 'askQuestion';
 export class SmsIO implements TextIO {
   private text: string|null;
 
-  constructor(private readonly twiml: twilio.TwimlResponse, readonly recorder: Recorder<SmsIOAction>, text: string|null) {
+  constructor(private readonly twiml: SimpleTwimlResponse, readonly recorder: Recorder<SmsIOAction>, text: string|null) {
     this.text = text;
   }
 

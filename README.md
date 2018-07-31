@@ -76,6 +76,19 @@ using the simulator, run:
 node sms/bundle.js --help
 ```
 
+#### SMS Lambda function
+
+**Note: using the SMS Lambda function requires
+installing `package.json`'s optional dependencies.**
+
+A bundle is also created that can be copy-pasted into AWS
+Lambda's code editor. This allows you to process SMS
+messages with Twilio, but without needing to provision
+a server.
+
+For more details on how to configure and deploy the
+Lambda function, see [sms/lambda.ts](sms/lambda.ts).
+
 ## Development
 
 Aside from Node JS, this project uses [TypeScript][], so

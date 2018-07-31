@@ -31,3 +31,12 @@ export interface FullSmsPostBody extends SmsPostBody {
   AccountSid: string,
   ApiVersion: string,         // e.g. '2010-04-01'
 }
+
+export function isSmsPostBody(obj: any): obj is SmsPostBody {
+  return (
+    obj &&
+    obj.From &&
+    typeof(obj.From) === 'string' &&
+    typeof(obj.Body) === 'string'
+  );
+}
