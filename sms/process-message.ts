@@ -1,4 +1,3 @@
-import * as twilio from 'twilio';
 import { Tenant } from '../lib/tenant';
 import { TextIOAction, TextInterviewIO, RecordableTextIO } from '../lib/console/readline-io';
 import { RecordedAction, Recorder } from '../lib/recorder';
@@ -7,6 +6,7 @@ import { TenantInterview } from '../lib/tenant-interview';
 import { SmsIOAction, SmsIO, SmsIsAwaitingAnswerError } from '../lib/sms/sms-io';
 import { SmsPostBody } from '../lib/sms/post-body';
 import { Storage } from '../lib/sms/storage';
+import SimpleTwimlResponse from '../lib/sms/simple-twiml-response';
 
 const RESET_CMD = "reset";
 
@@ -37,9 +37,9 @@ function createInitialState(phoneNumber: string): SmsAppState {
   };
 };
 
-export async function processMessage(msg: SmsPostBody, storage: Storage<SmsAppState>): Promise<twilio.TwimlResponse> {
+export async function processMessage(msg: SmsPostBody, storage: Storage<SmsAppState>): Promise<SimpleTwimlResponse> {
   let text: string|null = msg.MediaUrl0 ? msg.MediaUrl0 : msg.Body;
-  const twiml = new twilio.TwimlResponse();
+  const twiml = new SimpleTwimlResponse();
   let state = (await storage.get(msg.From)) || createInitialState(msg.From);
 
   function setState(updates: Partial<SmsAppState>) {

@@ -1,6 +1,15 @@
 const path = require('path');
 var nodeExternals = require('webpack-node-externals');
 
+function moduleExists(name) {
+  try {
+    require(name);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 const commonOptions = {
   module: {
     rules: [
@@ -70,4 +79,12 @@ const smsLambdaConfig = {
   }
 };
 
-module.exports = [ webConfig, consoleConfig, smsConfig, smsLambdaConfig ];
+const configs = [
+  webConfig, consoleConfig, smsConfig
+];
+
+if (moduleExists('aws-sdk')) {
+  configs.push(smsLambdaConfig);
+}
+
+module.exports = configs;
