@@ -42,8 +42,19 @@ http://localhost:8080.
 
 ### SMS front-end
 
-To use the SMS version of the interview, open
-a separate terminal and run:
+To simulate using the SMS version of the interview, run:
+
+```
+node sms/bundle.js simulate <SMS message text>
+```
+
+#### SMS webhook server
+
+**Note: using the SMS webhook server requires
+installing `package.json`'s optional dependencies.**
+
+To use the SMS version of the interview from your
+phone, open a separate terminal and run:
 
 ```
 npm run sms
@@ -58,8 +69,8 @@ a phone number on Twilio.
 Once you've got everything hooked up, send
 a SMS with the text "hi" to your Twilio number.
 
-For more options, including simulating SMS messages
-during development, run:
+For more details on configuring the server or
+using the simulator, run:
 
 ```
 node sms/bundle.js --help

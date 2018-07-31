@@ -1,11 +1,7 @@
-import * as http from 'http';
 import minimist from 'minimist';
-import express from 'express';
-import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { SmsPostBody } from '../lib/sms/post-body';
 import { processMessage, SmsAppState } from './process-message';
-import { Storage, FileStorage, MongoStorage } from '../lib/sms/storage';
+import { Storage, FileStorage } from '../lib/sms/storage';
 
 const DOTENV_FILE = '.env';
 
@@ -61,35 +57,22 @@ function showHelp() {
   console.log(HELP_TEXT);
 }
 
-function getStorage(): Storage<SmsAppState> {
+async function getStorage(): Promise<Storage<SmsAppState>> {
   if (MONGODB_URL) {
     console.log('Using MongoDB storage backend.');
+    const { MongoStorage } = await import('../lib/sms/storage-mongodb');
     return new MongoStorage(MONGODB_URL, 'interview-fun-sms-app-states', 'phoneNumber');
   }
   return new FileStorage(STATE_FILE);
 }
 
-function createApp(): express.Application {
-  const app = express();
-  const storage = getStorage();
-
-  app.post('/sms', bodyParser.urlencoded({ extended: true }), async (req, res) => {
-    // TODO: Verify that the POST is actually coming from Twilio.
-    const twiml = await processMessage(req.body as SmsPostBody, storage);
-
-    res.writeHead(200, {'Content-Type': 'text/xml'});
-    res.end(twiml.toString());
-  });
-  
-  return app;
-}
 
 async function simulate(body: string, argv: minimist.ParsedArgs): Promise<number> {
   if (!body.trim()) {
     console.log('Please provide a message body.');
     return 1;
   }
-  const storage = getStorage();
+  const storage = await getStorage();
   const twiml = await processMessage({
     From: (argv.from as string || DEFAULT_SIMULATE_NUMBER),
     Body: body
@@ -100,6 +83,18 @@ async function simulate(body: string, argv: minimist.ParsedArgs): Promise<number
   return 0;
 }
 
+async function serve(): Promise<void> {
+  const { runServer } = await import('./server');
+  const storage = await getStorage();
+
+  runServer(PORT, storage);
+}
+
+function handleError(e: Error) {
+  console.log(e.stack);
+  process.exit(1);
+}
+
 if (!module.parent) {
   const argv = minimist(process.argv.slice(2));
   const cmd = argv._[0];
@@ -107,14 +102,9 @@ if (!module.parent) {
     showHelp();
   } else if (cmd === 'simulate') {
     const body = argv._.slice(1).join(' ');
-    simulate(body, argv).then(process.exit).catch(e => {
-      console.log(e.stack);
-      process.exit(1);
-    });
+    simulate(body, argv).then(process.exit).catch(handleError);
   } else if (cmd === 'serve') {
-    http.createServer(createApp()).listen(PORT, () => {
-      console.log(`Express server listening on port ${PORT}.`);
-    });
+    serve().catch(handleError);
   } else {
     if (cmd) {
       console.log(`Invalid command "${cmd}".`);
