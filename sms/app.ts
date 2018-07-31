@@ -17,7 +17,10 @@ const STATE_FILE = '.sms-app-state.json';
 
 const DEFAULT_SIMULATE_NUMBER = '+5551234567';
 
-const MONGODB_URL = process.env['MONGODB_URL'];
+const {
+  MONGODB_URL,
+  DYNAMODB_TABLE
+} = process.env;
 
 const HELP_TEXT = `
 Usage:
@@ -44,6 +47,10 @@ Environment variables:
 
   MONGODB_URL    A MongoDB URL to use for storage (instead of the
                  filesystem).
+  DYNAMODB_TABLE The DynamoDB table to use for storage (instead of
+                 the filesystem).  Note that you may also need
+                 to define AWS_REGION, AWS_ACCESS_KEY_ID,
+                 and/or AWS_SECRET_ACCESS_KEY as well.
   PORT           The port to run the webhook server on. Defaults to
                  ${DEFAULT_PORT}.
 
@@ -63,9 +70,13 @@ async function getStorage(): Promise<Storage<SmsAppState>> {
     const { MongoStorage } = await import('../lib/sms/storage-mongodb');
     return new MongoStorage(MONGODB_URL, 'interview-fun-sms-app-states', 'phoneNumber');
   }
+  if (DYNAMODB_TABLE) {
+    console.log('Using DynamoDB storage backend.');
+    const { DynamoStorage } = await import('../lib/sms/storage-dynamodb');
+    return new DynamoStorage(DYNAMODB_TABLE, 'phoneNumber');
+  }
   return new FileStorage(STATE_FILE);
 }
-
 
 async function simulate(body: string, argv: minimist.ParsedArgs): Promise<number> {
   if (!body.trim()) {
