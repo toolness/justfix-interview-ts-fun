@@ -71,6 +71,8 @@ export default async function handler(event: AWSGatewayRequest): Promise<AWSGate
 
   const args = querystring.parse(event.body);
 
+  // TODO: Verify that the POST is actually coming from Twilio.
+
   if (!isSmsPostBody(args)) {
     return badRequest("POST args are invalid");
   }
