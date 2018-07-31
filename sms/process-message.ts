@@ -37,6 +37,16 @@ function createInitialState(phoneNumber: string): SmsAppState {
   };
 };
 
+class SmsInterviewIO extends TextInterviewIO {
+  /** 
+   * Sleeping when processing text messages is not allowed, especially
+   * since we may be running in a serverless environment, in which
+   * case we don't want to unnecessarily spend compute cycles.
+   */
+  async sleep(ms: number): Promise<void> {
+  }
+}
+
 export async function processMessage(msg: SmsPostBody, storage: Storage<SmsAppState>): Promise<SimpleTwimlResponse> {
   let text: string|null = msg.MediaUrl0 ? msg.MediaUrl0 : msg.Body;
   const twiml = new SimpleTwimlResponse();
@@ -76,7 +86,7 @@ export async function processMessage(msg: SmsPostBody, storage: Storage<SmsAppSt
     setState({ askedRecording: smsIo.recorder.resetRecording() });
   });
 
-  const io = new TextInterviewIO(recordableTextIo);
+  const io = new SmsInterviewIO(recordableTextIo);
   const recordableIo = new RecordableInterviewIO(io, state.recording);
   recordableIo.recorder.on('begin-recording-action', action => {
     setState({ recording: recordableIo.recorder.getRecording() });
