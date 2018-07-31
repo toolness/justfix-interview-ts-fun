@@ -17,7 +17,6 @@
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.16.0",
     "@types/minimist": "^1.2.0",
-    "@types/mongodb": "^3.1.2",
     "@types/node": "^10.5.2",
     "@types/react": "^16.4.7",
     "@types/react-dom": "^16.0.6",
@@ -31,7 +30,6 @@
     "gh-pages": "^1.2.0",
     "http-server": "^0.11.1",
     "minimist": "^1.2.0",
-    "mongodb": "^3.1.1",
     "nodemon": "^1.18.3",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
@@ -41,6 +39,10 @@
     "typescript-json-schema": "^0.26.0",
     "webpack": "^4.16.1",
     "webpack-node-externals": "^1.7.2"
+  },
+  "optionalDependencies": {
+    "mongodb": "^3.1.1",
+    "@types/mongodb": "^3.1.2"
   },
   "devDependencies": {
     "webpack-cli": "^3.0.8"
