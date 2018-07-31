@@ -1,6 +1,13 @@
 This is an experiment in creating a medium-independent interview
 logic for the second version of [JustFix.nyc][]'s tenant app.
 
+For example, the interview logic in
+[lib/tenant-interview.ts](lib/tenant-interview.ts) is used
+to power both the SMS and web versions of this prototype's
+experience:
+
+<img src="https://user-images.githubusercontent.com/124687/43488170-ce8e25cc-94e6-11e8-958b-fde77d9d8c03.png" height="480" alt="screenshot of interview on an iPhone's Messages app">&nbsp;&nbsp;&nbsp;<img src="https://user-images.githubusercontent.com/124687/43488178-d17ebda0-94e6-11e8-902a-07b77fe44b2d.png" height="480" alt="Screenshot of interview on Google Chrome web browser">
+
 ## Motivation
 
 This experiment uses a combination of strong typing and
