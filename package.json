@@ -38,13 +38,11 @@
     "typescript": "^2.9.2",
     "typescript-json-schema": "^0.26.0",
     "webpack": "^4.16.1",
+    "webpack-cli": "^3.0.8",
     "webpack-node-externals": "^1.7.2"
   },
   "optionalDependencies": {
     "mongodb": "^3.1.1",
     "@types/mongodb": "^3.1.2"
-  },
-  "devDependencies": {
-    "webpack-cli": "^3.0.8"
   }
 }
